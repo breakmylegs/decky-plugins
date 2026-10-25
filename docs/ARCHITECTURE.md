@@ -84,9 +84,28 @@ SABnzbd reports a missing or wrong key as HTTP 403 with a plain-text body, and t
 
 `PluginError` takes an optional `hint`, which replaces the standard message when a plugin knows exactly what went wrong. The poller re-reports status when the message changes, not only the kind.
 
+## Plugin 3: tuning-advisor
+
+Read only. It recommends and never applies. `tools/check_readonly.py` fails the gate if its source calls a Steam setter, injects into a tab or runs a process.
+
+| Module | Role |
+|---|---|
+| `registry/devices.json` | One entry per device variant, with DMI match rules, specs, TDP range and bands, and Deck Verified name patterns |
+| `registry/stacks.json` | One entry per tool, with detection rules, categories and the words to phrase advice in |
+| `advisor/device.py` | Reads DMI, cpuinfo and the GPU vendor. The most specific matching entry wins. CPU text splits variants that share DMI strings |
+| `advisor/stack.py` | Reads other plugins' `plugin.json` names, Decky's disabled list and some file paths. Picks one tool per category, manual choice first. Finds conflicts |
+| `advisor/deckverified.py` | Fetches reports and normalises them into the section 8.6 model |
+| `advisor/cache.py` | 7-day cache keyed by app and build. Stale entries serve when offline |
+| `advisor/recommend.py` | Device match, ranking, validation, translation and the fallback |
+| `advisor/service.py` | Ties it together. Recomputes when the game or settings change. There is no poller |
+
+The frontend tracks games with `SteamClient.GameSessions.RegisterForAppLifetimeNotifications`, reads the name and build ID from `appStore` and `appDetailsStore`, and offers recent games from `collectionStore`. Non-Steam shortcuts are looked up by name and every result for them is low confidence.
+
+Validation runs on every recommendation, including the fallback. TDP is clamped to the device range, refresh rates above the panel are dropped, and frame caps outside the VRR range, or that do not divide the refresh rate without VRR, are flagged. FSR 4 is removed wherever it appears, including the in-game settings list.
+
 ## Release
 
-`release.yml` runs on a tag such as `qbittorrent-monitor-v0.1.0`. It checks the tag matches `package.json`, vendors, tests, builds, packages, smoke tests the zip, pushes the plugin folder to the mirror and creates a mirror release with the zip attached.
+Nothing runs on GitHub. GitHub Actions is turned off for this repo, by the owner's decision, and there are no workflow files. Every check runs locally through `tools/gate.py`, and releases are made from the local machine with `gh`, which uses no Actions minutes. The mirror and release steps are still to be written as a local script.
 
 The zip root folder, the asset name and `plugin.json` name are all the plugin id. See `docs/VERIFICATION.md` item 4.
 
@@ -94,9 +113,11 @@ The zip root folder, the asset name and `plugin.json` name are all the plugin id
 
 ## Guards
 
+All guards run in `tools/gate.py`, which stops at the first failure.
+
 | Guard | Fails when |
 |---|---|
-| gitleaks | Any secret pattern in history or the working tree |
+| gitleaks | Any secret pattern in history or the working tree. A missing gitleaks fails the gate unless `--skip-secrets` is given |
 | `tools/check_fixtures.py` | A fixture holds an IPv4 address outside loopback and the RFC 5737 ranges, or a key-shaped string |
 | `tools/check_readonly.py` | tuning-advisor source calls a Steam setter, injects into a tab or runs a process. Refuses to pass on an empty tree |
 | `tools/package_zip.py` | `plugin.json` name differs from the id, a root flag is set, or `"type": "module"` is missing |

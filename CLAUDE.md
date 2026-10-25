@@ -10,6 +10,12 @@ Build brief for three public Decky Loader plugins. Read this file in full before
 - Never commit secrets, hostnames, IP addresses, torrent names or NZB names. This repo is public.
 - Follow the documentation style rules in section 13 for all READMEs, docs, code comments and UI copy.
 
+## Owner overrides
+
+These replace parts of the brief below. They win wherever the brief disagrees.
+
+- **No GitHub Actions (25 October 2026).** The owner has no licence or allowance for Actions. Actions is turned off for the repo, there are no workflow files, and no check runs on GitHub. Wherever the brief says CI, read `tools/gate.py` run locally. Mirroring and releases run from the local machine with `gh`.
+
 ## 1. Context
 
 **Goal.** Three independent Decky Loader plugins, published publicly under GPL-3.0, usable on any Decky-capable handheld.

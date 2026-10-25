@@ -13,3 +13,5 @@ plugins/*/build_info.json
 decky-import/
 *.local.json
 captures/
+# Local tools such as gitleaks for tools/gate.py.
+.tools/

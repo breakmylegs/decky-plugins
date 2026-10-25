@@ -6,13 +6,21 @@ Three Decky Loader plugins for handheld PCs. GPL-3.0.
 |---|---|---|
 | [qbittorrent-monitor](plugins/qbittorrent-monitor) | Monitor and control qBittorrent from the Quick Access Menu | Phase 1 build, on-device testing next |
 | [sabnzbd-monitor](plugins/sabnzbd-monitor) | Monitor and control SABnzbd from the Quick Access Menu | Phase 1 build, on-device testing next |
-| [tuning-advisor](plugins/tuning-advisor) | Recommend game settings for your device and tuning tools. Never changes anything | Scaffold |
+| [tuning-advisor](plugins/tuning-advisor) | Recommend game settings for your device and tuning tools. Never changes anything | Phase 1 MVP, on-device testing next |
 
 This monorepo is the source of truth. Each plugin is mirrored to its own repo, which hosts releases. Report issues here.
 
 ## Develop
 
 Needs Python 3.10 or newer, Node 22 and pnpm 9.
+
+Nothing runs on GitHub. Run the full gate locally before every push:
+
+```bash
+python tools/gate.py
+```
+
+It needs gitleaks on PATH or in `.tools/`.
 
 ```bash
 python tools/vendor_shared.py
@@ -50,4 +58,4 @@ python tools/mock_sabnzbd.py --port 8091 --api-key test-key-for-local-use-only
 
 ## Release
 
-Tag `<plugin-id>-v<version>` matching the plugin's `package.json`. The release workflow builds the zip, pushes the plugin to its mirror and attaches the zip to a mirror release. It needs the `MIRROR_TOKEN` repository secret.
+Releases are made locally with `gh` after the gate passes. A local mirror and release script is still to be written.

@@ -45,6 +45,10 @@ def fake_decky(home: str, plugin_dir: str, name: str, events: list) -> types.Mod
 
 async def exercise(plugin, events: list, mock_url: str | None, key: str) -> None:
     await plugin._main()
+    if not hasattr(plugin, "get_snapshot"):
+        # A scaffold with no frontend API yet. Loading and unloading is the test.
+        await plugin._unload()
+        return
     snap = await plugin.get_snapshot()
     assert snap["status"]["state"] in ("connecting", "unconfigured"), snap["status"]
     if mock_url:

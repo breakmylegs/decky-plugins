@@ -15,7 +15,9 @@ Each **[VERIFY]** item from the build brief (CLAUDE.md section 12), with status,
 - Lenovo puts the machine type in `product_name` (for example `83N0`) and the model name in `product_version`. Confirmed.
 - Steam native TDP exists on every target device on current SteamOS, through steamos-manager. Not Steam Deck only.
 - LeGoTDP lives at Rayekkk/LeGoTDP, is archived and superseded by Legion Go 2 Companion. Its 5 s reapply is confirmed.
-- Deck Verified has no ROG Xbox Ally device label yet.
+- Deck Verified has no ROG Xbox Ally device label yet. Its data is GPL-3.0 and its API allows 120 requests per 2 minutes per IP.
+- Anthropic API version 2026-10-21 removes temperature, top_p and top_k. Gemini deprecates responseSchema. Recheck both at phase 2.
+- FSR 4.1 is official on Z2 chips under Windows only, not under Proton.
 
 ## 1. `@decky/ui` and `@decky/rollup` versions
 
@@ -210,6 +212,32 @@ Status: confirmed. Paths are `/sys/devices/virtual/dmi/id/<field>` (same as `/sy
 
 Sources: https://github.com/ShadowBlip/InputPlumber/tree/main/rootfs/usr/share/inputplumber/devices (commit 4ed1f50, 21 October 2026), https://github.com/hhd-dev/hhd/tree/master/src/hhd/device (commit ae908f9, 24 October 2026), https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/py_modules/device_utils.py , https://github.com/Rayekkk/LegionGo2Companion .
 
+## 20. Device spec seed values
+
+Status: partly confirmed. Steam Deck and the first two Ally models are confirmed from the makers' pages. The rest are from secondary launch coverage, AMD's chip page, or reference knowledge, and are marked as such. Recheck the unconfirmed rows against Lenovo PSREF and MSI spec pages (both timed out or were not reached here).
+
+Key: C = confirmed on the maker's page today. S = secondary coverage agrees. R = reference value, not rechecked today.
+
+| Device | Display | Refresh, VRR | Battery | APU, GPU | TDP | RAM | Basis |
+|---|---|---|---|---|---|---|---|
+| Steam Deck LCD | 7.0 in, 1280x800 | 60 Hz, no VRR | 40 Wh | Van Gogh, Zen 2 4c/8t, 8 RDNA 2 CU, 1.6 GHz | 4 to 15 W | 16 GB LPDDR5-5500 | C |
+| Steam Deck OLED | 7.4 in, 1280x800 HDR OLED, 1000 nits HDR peak | up to 90 Hz, no VRR stated | 50 Wh | 6 nm, 8 RDNA 2 CU, 1.6 GHz | 4 to 15 W | 16 GB LPDDR5-6400 | C |
+| ROG Ally (RC71L), Z1 Extreme | 7 in, 1920x1080 | 120 Hz, FreeSync Premium | 40 Wh | Z1 Extreme, 12 RDNA 3 CU, up to 2.7 GHz | 9 to 30 W | 16 GB LPDDR5-6400 | C. Z1 (non Extreme) SKU: 4 RDNA 3 CU, R |
+| ROG Ally X (RC72LA) | 7 in, 1920x1080 | 120 Hz, FreeSync Premium | 80 Wh | Z1 Extreme, 12 RDNA 3 CU | 9 to 30 W | 24 GB LPDDR5 (12 GB x2) | C |
+| ROG Xbox Ally (RC73YA) | 7 in, 1920x1080 | 120 Hz, VRR R | 60 Wh | Ryzen Z2 A, Zen 2 4c/8t, 8 RDNA 2 CU R | 6 to 20 W R (Steam's own range is 4 to 20 W, item 22) | 16 GB LPDDR5-6400 | battery and RAM C (ASUS eShop), rest S or R |
+| ROG Xbox Ally X (RC73XA) | 7 in, 1920x1080 | 120 Hz, VRR R | 80 Wh | Ryzen AI Z2 Extreme, 16 RDNA 3.5 CU, up to 2.9 GHz | 15 to 35 W cTDP, 28 W default (AMD chip page) | 24 GB LPDDR5X-8000 | S, chip values C (amd.com) |
+| Legion Go (83E1) | 8.8 in, 2560x1600 | 144 Hz, no VRR R | 49.2 Wh | Z1 Extreme, 12 RDNA 3 CU | up to 30 W R | 16 GB LPDDR5X-7500 | R |
+| Legion Go S (83L3 Z2 Go, 83N6 Z1E) | 8 in, 1920x1200 | 120 Hz, VRR | 55.5 Wh | Z2 Go (Zen 3+ 4c/8t, 12 RDNA 2 CU) or Z1 Extreme | firmware ceiling SPL 40, SPPT 43, FPPT 53 W (LeGoTDP, read from firmware) | 16 or 32 GB LPDDR5X-6400 | R, TDP from source |
+| Legion Go 2 (83N0 Z2E, 83N1 Z2) | 8.8 in, 1920x1200 OLED, HDR TrueBlack 1000 | 144 Hz, VRR 30 to 144 Hz | 74 Wh | Z2 Extreme (16 RDNA 3.5 CU) or Z2 (Zen 4, 12 RDNA 3 CU) | firmware range 5 to 35 W (SimpleDeckyTDP comment), up to 50 W with ryzenadj (LeGoTDP) | up to 32 GB LPDDR5X-8000 | S, TDP from source |
+| MSI Claw A8 (MS-1T8K) | 8 in, 1920x1200 | 120 Hz, VRR | 80 Wh | Z2 Extreme, 16 RDNA 3.5 CU | 15 to 35 W (chip) | 24 GB LPDDR5X-8000 | R |
+| MSI Claw A1M (MS-1T41) | 7 in, 1920x1080 | 120 Hz, VRR | 53 Wh | Core Ultra 7 155H or 5 135H, Arc 8 Xe (7 Xe on 135H) | up to 35 to 40 W R | 16 GB LPDDR5-6400 | R |
+| MSI Claw 7 AI+ and 8 AI+ (MS-1T42, MS-1T52) | 7 in 1920x1080 and 8 in 1920x1200 | 120 Hz, VRR | 80 Wh | Core Ultra 7 258V, Arc 140V, 8 Xe2 cores | up to 30 W R | 16 or 32 GB LPDDR5X-8533 | R |
+
+- CU counts are AMD compute units. Intel parts have Xe cores, so the advisor should not compare them with CU counts.
+- Sources disagree on the Legion Go 2 iGPU name (890M versus 780M). By chip, Z2 Extreme is RDNA 3.5 and Z2 is RDNA 3.
+
+Sources: https://www.steamdeck.com/en/tech/deck , https://www.steamdeck.com/en/tech , https://rog.asus.com/gaming-handhelds/rog-ally/rog-ally-2023/spec/ , https://rog.asus.com/gaming-handhelds/rog-ally/rog-ally-x-2024/spec/ , https://eshop.asus.com/ca-en/rog-xbox-ally-cnf.html , https://www.amd.com/en/products/processors/handhelds/ryzen-z-series/z2-series/z2-extreme.html , https://www.pcworld.com/article/2899101/lenovos-legion-go-2-adds-a-big-oled-screen-to-battle-the-steam-deck.html , https://insider-gaming.com/?p=144499 , https://liliputing.com/?p=175098 .
+
 ## 21. Stack detection identifiers
 
 Status: confirmed, two repos moved owner.
@@ -275,6 +303,44 @@ Status: confirmed for all four. Only LeGoTDP has named presets.
 
 Sources: https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/src/utils/constants.tsx , https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/defaults/i18n/en.json , https://github.com/mengmeet/PowerControl/blob/main/src/i18n/english.json , https://github.com/mengmeet/PowerControl/blob/main/src/util/settings.ts , https://github.com/NGnius/PowerTools , https://git.ngni.us/api/v1/repos/NG-SD-Plugins/PowerTools/releases , https://github.com/Rayekkk/LeGoTDP/blob/main/README.md , https://github.com/Rayekkk/LeGoTDP/blob/main/main.py , https://github.com/Rayekkk/LeGoTDP/blob/main/src/index.tsx .
 
+## 24. AI provider APIs
+
+Status: confirmed for OpenAI. Corrected for Anthropic (new API version four days ago) and Gemini (`responseSchema` is deprecated).
+
+OpenAI
+- Recommended surface: the **Responses API**, `POST https://api.openai.com/v1/responses`. Migration guide: "While Chat Completions remains supported, Responses is recommended for all new projects." The Assistants API "was officially sunset on August 26, 2026".
+- Structured output: `text.format` (moved from Chat Completions `response_format`). Shape: `"text": {"format": {"type": "json_schema", "name": "<name>", "schema": {...}, "strict": true}}`.
+- Auth: `Authorization: Bearer <key>`. Models list: `GET https://api.openai.com/v1/models`.
+- The docs examples now use `gpt-6-astra` ("For new projects, start with gpt-6-astra"). Do not hard-code a model, read the list.
+
+Anthropic
+- `POST https://api.anthropic.com/v1/messages`. Headers: `x-api-key: <key>` (or `Authorization: Bearer <key>`, which the API now accepts too), `anthropic-version`, `content-type: application/json`.
+- **New API version `2026-10-21`** (released 21 October 2026). It removes `temperature`, `top_p` and `top_k` (400 on every model), and rejects `document` blocks in `assistant` messages and `citations` on user `text` blocks. `2023-06-01` is still accepted ("keep that request on 2023-06-01"). The new SDK majors send `Authorization: Bearer` instead of `X-Api-Key`. Recommendation: send `anthropic-version: 2026-10-21`, and never send sampling parameters.
+- Structured output is GA, no beta header: `"output_config": {"format": {"type": "json_schema", "schema": {...}}}`. The old `output_format` is deprecated and needs the beta header `structured-outputs-2025-11-13` or it returns 400. Strict tool use: `"strict": true` on a tool definition.
+- Models list: `GET https://api.anthropic.com/v1/models`, params `limit` (default 20, max 1000), `after_id`, `before_id`, `lifecycle` (`active`, `deprecated`, `retired`). Response `data[]` with `id`, `display_name`, `created_at`, `lifecycle`, `line`, `max_input_tokens`, `max_tokens`, `capabilities.structured_outputs.supported`, plus `has_more`, `first_id`, `last_id`. Filter on `capabilities.structured_outputs.supported`.
+
+Google Gemini
+- `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent`, header `x-goog-api-key: <key>`. Still documented, with no deprecation notice.
+- Correction: in the current API reference **`generationConfig.responseSchema` is marked deprecated** ("Deprecated. Use responseFormat instead"), and so is `_responseJsonSchema`. `responseMimeType` is still there. The new field is `generationConfig.responseFormat`: `{"text": {"mimeType": "APPLICATION_JSON", "schema": {...JSON Schema...}}}`. Deprecated fields still work for now. Send `responseFormat`, and fall back to `responseMimeType: "application/json"` plus `responseJsonSchema` if a model rejects it.
+- The structured output guide now leads with a new **Interactions API** (`POST https://generativelanguage.googleapis.com/v1beta/interactions`, body `response_format` with `mime_type: "application/json"`). `generateContent` is listed beside it as a core API.
+- `temperature` "is no longer supported and is silently ignored on Gemini 3.6 Flash and newer models".
+- Models list: `GET https://generativelanguage.googleapis.com/v1beta/models` (same header). Doc examples use `gemini-3.8-flash`.
+
+All three should be called from the plugin's Python backend, not the CEF frontend, so the key never sits in the Steam client's JS context.
+
+Sources: https://developers.openai.com/api/docs/guides/migrate-to-responses , https://developers.openai.com/api/docs/guides/structured-outputs , https://platform.claude.com/docs/en/build-with-claude/structured-outputs , https://platform.claude.com/docs/en/api/versioning , https://platform.claude.com/docs/en/api/migration-2026-10-21 , https://platform.claude.com/docs/en/api/models/list , https://ai.google.dev/api/generate-content , https://ai.google.dev/gemini-api/docs/structured-output , https://ai.google.dev/api/models .
+
+## 25. FSR 4 on RDNA 3.5 under SteamOS and Proton
+
+Status: corrected on the Windows side, unresolved on the Linux side.
+
+- AMD officially extended **FSR Upscaling 4.1** on 20 October 2026 to RDNA 2 (RX 6000), Ryzen AI Max, Ryzen AI 9 laptops, and handhelds with **Ryzen AI Z2 Extreme, Ryzen Z2 Extreme and Ryzen Z2 A**. Xbox Series X|S is "coming soon". Vulkan support comes with "AMD FSR SDK 2.4", no date. This is a Windows driver announcement. Earlier in 2026 (VideoCardz, about June) AMD had said 4.1 would skip RDNA 3.5 iGPUs, so the brief may hold the old position.
+- Not named by AMD: Z1 and Z1 Extreme (RDNA 3, ROG Ally, Legion Go, Legion Go S Z1E), Steam Deck (RDNA 2). Z2 A uses Steam Deck class RDNA 2 silicon, so "Z2 A supported" does not prove the Deck is.
+- Linux: Valve shipped FSR 4 for **discrete** RDNA 3 and the Steam Machine through Proton Experimental in June 2026, with no word on iGPUs. FSR 4.1 files for RDNA 3 and 3.5 then surfaced in the Proton Experimental depot (igor'sLAB, TechPowerUp, about June to July 2026), with user reports of it running on the Radeon 890M. No Valve statement or Proton changelog confirming RDNA 3.5 iGPU support was found as of 25 October 2026. `PROTON_FSR4_UPGRADE`, `PROTON_FSR4_RDNA3_UPGRADE` and `PROTON_FSR4_INDICATOR` appear in community builds (Proton-CachyOS, Proton-EM) per forum posts, not in Valve's notes.
+- Advice: the advisor should say "FSR 4 on this device under Proton is unofficial" for every target handheld today, offer the OptiScaler route (Decky-Framegen, item 21) as the community path, and recheck the Proton Experimental changelog before release.
+
+Sources: https://www.gamingonlinux.com/2026/10/amd-fsr-upscaling-4-1-expands-support-to-older-desktops-laptops-handhelds-consoles-and-vulkan/ , https://www.gamingonlinux.com/2026/06/amd-fsr-4-lands-on-rdna3-dgpus-for-linux-steamos-and-steam-machine-via-proton-experimental/ , https://videocardz.com/newz/amd-fsr-4-1-to-skip-rdna-3-5-integrated-graphics , https://www.techpowerup.com/350170/leaked-fsr-4-1-int8-model-confirms-compatibility-with-rdna-3-5 , https://www.igorslab.de/en/valve-fsr-4-1-proton-experimental-rdna-3-3-5/ , https://discuss.cachyos.org/t/fsr4-on-rdna3-with-proton-cachyos-env-vars-4-0-0-vs-4-0-2-and-where-the-dlls-are-cached/19391 .
+
 ## 26. Plugin backend process isolation
 
 **Status:** confirmed, with a caveat. Checked 25 October 2026.
@@ -300,7 +366,8 @@ Status: partly confirmed.
 | 15 | Capture fixtures from a live 5.1.3 server. Confirm `have_warnings` and `speedlimit` sit in the queue root |
 | 17 | ProtonDB dump format and size. Phase 2 |
 | 18 | PCGamingWiki auth flow and renamed Cargo tables. Phase 2 |
-| 20 | Device spec seed values from manufacturer pages. Needed for the tuning-advisor MVP |
-| 24 | AI provider endpoints and structured output options. Phase 2. Recheck at build time |
-| 25 | FSR 4 on RDNA 3.5 under SteamOS. Until resolved, FSR 4 is never recommended |
+| 20 | Legion Go, Legion Go S and MSI Claw rows are reference values (marked R). Recheck against Lenovo and MSI spec pages from an unfiltered network |
+| 24 | Findings recorded. Recheck at phase 2 build time, because Anthropic and Gemini both changed in October 2026 |
+| 25 | FSR 4.1 is official on Z2 chips under Windows only. Under Proton it stays unofficial, so FSR 4 is still never recommended |
+| 10 | No clipboard API. Test `navigator.clipboard` and the `execCommand` fallback on a device |
 | Names | Recheck the live store JSON from an unfiltered network before submission |

@@ -84,6 +84,7 @@ jobs:
         run: |
           extra=""
           if [ "${{ matrix.plugin }}" = "qbittorrent-monitor" ]; then extra="--mock-qbt"; fi
+          if [ "${{ matrix.plugin }}" = "sabnzbd-monitor" ]; then extra="--mock-sab"; fi
           python -I tools/smoke_zip.py out/${{ matrix.plugin }}.zip $extra
       - uses: actions/upload-artifact@v7
         with:

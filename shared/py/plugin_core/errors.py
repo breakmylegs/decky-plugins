@@ -43,17 +43,20 @@ MESSAGES = {
 class PluginError(Exception):
     """A classified failure. `detail` must never contain a secret."""
 
-    def __init__(self, kind: str, detail: str = "", status: int | None = None):
+    def __init__(self, kind: str, detail: str = "", status: int | None = None, hint: str | None = None):
+        """`hint` replaces the standard message when a plugin knows exactly what
+        went wrong and what to do. It is shown to the user, so no secrets."""
         if kind not in KINDS:
             raise ValueError(f"unknown error kind: {kind}")
         super().__init__(detail or kind)
         self.kind = kind
         self.detail = detail
         self.status = status
+        self.hint = hint
 
     @property
     def message(self) -> str:
-        return MESSAGES[self.kind]
+        return self.hint or MESSAGES[self.kind]
 
     def to_dict(self) -> dict:
         return {"kind": self.kind, "message": self.message, "status": self.status}

@@ -137,9 +137,9 @@ class Poller:
         self.error = err
 
     async def _report(self) -> None:
-        """Emit status only when the state or error kind changes. This keeps the
+        """Emit status only when the state or error message changes. This keeps the
         offline state to one event."""
-        key = {"state": self.state, "kind": self.error.kind if self.error else None}
+        key = {"state": self.state, "message": self.error.message if self.error else None}
         if key == self._last_reported:
             return
         self._last_reported = key

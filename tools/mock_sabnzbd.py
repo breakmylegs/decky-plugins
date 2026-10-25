@@ -36,8 +36,9 @@ def _slot(name: str, status: str, pct: int, priority: str = "Normal", cat: str =
 
 class MockState:
     def __init__(self, api_key: str = "", nzb_key: str = "", version: str = "5.1.3", config_locked: bool = False,
-                 api_warnings: bool = True):
+                 api_warnings: bool = True, url_base: str = ""):
         self.api_warnings = api_warnings
+        self.url_base = url_base.rstrip("/")
         self.api_key = api_key
         self.nzb_key = nzb_key
         self.version = version
@@ -104,7 +105,7 @@ def make_handler(state: MockState):
 
         def do_GET(self):
             parts = urllib.parse.urlsplit(self.path)
-            if parts.path.rstrip("/") != "/api" and not parts.path.rstrip("/").endswith("/api"):
+            if parts.path.rstrip("/") != f"{state.url_base}/api":
                 self.send_response(404)
                 self.send_header("Content-Length", "0")
                 self.end_headers()

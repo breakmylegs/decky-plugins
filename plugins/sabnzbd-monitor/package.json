@@ -1,6 +1,6 @@
 {
   "name": "sabnzbd-monitor",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Monitor and control a SABnzbd instance from the Decky Quick Access Menu",
   "type": "module",
   "private": true,
@@ -8,7 +8,7 @@
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "keywords": [
     "decky",

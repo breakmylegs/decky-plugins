@@ -2,10 +2,10 @@
 
 Extracts the zip to a temp folder, installs a stand-in `decky` module, appends
 py_modules to sys.path (Decky appends, so a stdlib name always wins), imports
-main.py, runs _main, calls get_snapshot, then _unload. With --mock-qbt it also
-points the plugin at a mock qBittorrent and checks one poll arrives.
+main.py, runs _main, calls get_snapshot, then _unload. With --mock-qbt or
+--mock-sab it also points the plugin at a mock server and checks one poll arrives.
 
-Run in a fresh interpreter: python -I tools/smoke_zip.py out/<id>.zip [--mock-qbt]
+Run in a fresh interpreter: python -I tools/smoke_zip.py out/<id>.zip [--mock-qbt | --mock-sab]
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def fake_decky(home: str, plugin_dir: str, name: str, events: list) -> types.Mod
     return mod
 
 
-async def exercise(plugin, events: list, mock_url: str | None, key: str) -> None:
+async def exercise(plugin, events: list, mock_url: str | None, key: str, check=None) -> None:
     await plugin._main()
     if not hasattr(plugin, "get_snapshot"):
         # A scaffold with no frontend API yet. Loading and unloading is the test.
@@ -61,7 +61,7 @@ async def exercise(plugin, events: list, mock_url: str | None, key: str) -> None
                 break
             await asyncio.sleep(0.1)
         data = [e[1][0] for e in events if e[0] == "data"]
-        assert data and data[-1]["total"] == 3, data
+        assert data and check(data[-1]), data
         blob = json.dumps(events) + json.dumps(await plugin.get_snapshot())
         assert key not in blob, "secret leaked into an event or snapshot"
     await plugin._unload()
@@ -71,6 +71,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("zip")
     parser.add_argument("--mock-qbt", action="store_true")
+    parser.add_argument("--mock-sab", action="store_true")
     args = parser.parse_args()
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -91,15 +92,24 @@ def main() -> int:
         plugin = module.Plugin()
 
         mock = None
+        check = None
         key = "smoke_" + "k" * 26
-        if args.mock_qbt:
+        if args.mock_qbt or args.mock_sab:
             sys.path.insert(0, TOOLS)
+        if args.mock_qbt:
             import mock_qbittorrent
 
             mock = mock_qbittorrent.MockQbt(api_key=key)
+            check = lambda d: d["total"] == 3  # noqa: E731
+        elif args.mock_sab:
+            import mock_sabnzbd
+
+            mock = mock_sabnzbd.MockSab(api_key=key)
+            check = lambda d: d["server"]["jobs"] == 2 and len(d["queue"]) == 2  # noqa: E731
+        if mock:
             mock.start()
         try:
-            asyncio.run(exercise(plugin, events, mock.url if mock else None, key))
+            asyncio.run(exercise(plugin, events, mock.url if mock else None, key, check))
         finally:
             if mock:
                 mock.stop()

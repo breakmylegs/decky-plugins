@@ -69,6 +69,21 @@ Game running state comes from `SteamClient.GameSessions.RegisterForAppLifetimeNo
 
 qBittorrent has no unauthenticated version endpoint. The connection test calls `app/version` without credentials first: 200 means the server skips auth for this device, 403 means it is reachable and wants credentials, 404 means the address is wrong. Then it signs in. If a stored API key is rejected, it retries without the key to tell a rejected key from a whitelist that works.
 
+## Plugin 2: sabnzbd-monitor
+
+| Module | Role |
+|---|---|
+| `sabmon/client.py` | API client. Every call is `GET /api?output=json&apikey=...&mode=...` |
+| `sabmon/sync.py` | Queue and history cache, the projection, and completed and failed toasts |
+| `sabmon/states.py` | Queue and history labels, priority names, string to number and time parsing |
+| `sabmon/service.py` | Poll, actions, warnings and the connection test |
+
+Each poll makes two calls: `queue` with `limit=8`, and `history` with `last_history_update`. When history has not changed SABnzbd answers `{"history": false}` and the cache stays.
+
+SABnzbd reports a missing or wrong key as HTTP 403 with a plain-text body, and the body is empty when the server has `api_warnings` off. The client decides on the status code and uses the text only to choose a more specific message: NZB key used, host name not whitelisted, or access refused. "Configuration locked" is a JSON error with HTTP 200. The service remembers it, so the panel can explain why timed pause and the speed limit fail.
+
+`PluginError` takes an optional `hint`, which replaces the standard message when a plugin knows exactly what went wrong. The poller re-reports status when the message changes, not only the kind.
+
 ## Release
 
 `release.yml` runs on a tag such as `qbittorrent-monitor-v0.1.0`. It checks the tag matches `package.json`, vendors, tests, builds, packages, smoke tests the zip, pushes the plugin folder to the mirror and creates a mirror release with the zip attached.

@@ -1,0 +1,32 @@
+# Privacy
+
+What each plugin stores, sends and logs.
+
+## All plugins
+
+- Settings live in `~/homebrew/settings/<plugin-id>/settings.json`. Keys and passwords live in `secrets.json` in the same folder. Both files are readable by your user only (mode 600).
+- Secret values never leave the backend. The panel shows whether a secret is set and its last four characters when it is long enough.
+- Secrets never appear in logs, error messages or events.
+- Import from file reads `~/Documents/decky-import/<plugin-id>.json`. After a successful import the plugin asks you to delete the file. Delete it, because it holds your credentials in plain text.
+- Uninstalling keeps your settings unless you turn on "Remove settings on uninstall".
+
+### Update check
+
+Once a day each plugin asks `api.github.com` for the latest release of its own mirror repo. GitHub sees your IP address and a standard request. Nothing about your setup is sent. Turn it off with "Check for updates daily".
+
+## qbittorrent-monitor
+
+Talks only to the qBittorrent address you enter. It sends your API key or password to that server and nowhere else. It reads torrent names, sizes, states and speeds and shows them in the panel. Nothing is stored apart from settings and secrets.
+
+## sabnzbd-monitor
+
+Talks only to the SABnzbd address you enter, with your API key. Same rules as above.
+
+## tuning-advisor
+
+Planned behaviour, to be confirmed as each phase lands:
+
+- Reads device facts from `/sys/class/dmi/id/`, `/proc/cpuinfo` and `/etc/os-release`. Serial numbers and UUIDs are never read.
+- Reads other Decky plugins' `plugin.json` files to detect your tuning tools. It never writes to them.
+- Sends the Steam app ID of the selected game to Deck Verified to fetch community reports. Responses are cached for 7 days.
+- Optional AI recommendations (phase 2) send only the game name, app ID, device profile, your selected tools and excerpts of the community reports to the provider you choose. No host names, no other plugins' secrets, no user identifiers. Use a dedicated API key with a spending limit.

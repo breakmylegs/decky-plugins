@@ -1,0 +1,91 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 3.10 is the loader's floor. 3.14 is what Decky v3.3.0 ships.
+        python: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install pytest
+      - name: Fixture guard
+        run: python tools/check_fixtures.py
+      - name: Read-only guard (tuning-advisor)
+        run: python tools/check_readonly.py plugins/tuning-advisor
+      - name: Shared core
+        run: python -m pytest -q shared/py/tests tools/tests
+      - name: Plugins
+        run: |
+          for dir in plugins/*/tests; do
+            python -m pytest -q "$dir"
+          done
+
+  plugins:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: [qbittorrent-monitor, sabnzbd-monitor, tuning-advisor]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: plugins/${{ matrix.plugin }}/pnpm-lock.yaml
+      - name: Vendor shared code
+        run: python tools/vendor_shared.py ${{ matrix.plugin }}
+      - name: Install
+        working-directory: plugins/${{ matrix.plugin }}
+        run: pnpm install --frozen-lockfile
+      - name: Unit tests
+        working-directory: plugins/${{ matrix.plugin }}
+        run: pnpm test
+      - name: Build
+        working-directory: plugins/${{ matrix.plugin }}
+        run: pnpm build
+      # tsc runs after the build so it checks the final files.
+      - name: Typecheck
+        working-directory: plugins/${{ matrix.plugin }}
+        run: pnpm typecheck
+      - name: Package
+        run: python tools/package_zip.py ${{ matrix.plugin }}
+      - name: Smoke test the zip
+        run: |
+          extra=""
+          if [ "${{ matrix.plugin }}" = "qbittorrent-monitor" ]; then extra="--mock-qbt"; fi
+          python -I tools/smoke_zip.py out/${{ matrix.plugin }}.zip $extra
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.plugin }}
+          path: out/${{ matrix.plugin }}.zip

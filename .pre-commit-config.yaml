@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: fixture-guard
+        name: fixture guard
+        entry: python tools/check_fixtures.py
+        language: system
+        pass_filenames: false
+      - id: readonly-guard
+        name: tuning-advisor read-only guard
+        entry: python tools/check_readonly.py plugins/tuning-advisor
+        language: system
+        pass_filenames: false

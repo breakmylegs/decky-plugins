@@ -1,0 +1,11 @@
+title = "decky-plugins"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated or third-party files with no secrets"
+paths = [
+  '''(^|/)pnpm-lock\.yaml$''',
+  '''(^|/)LICENSE$''',
+]

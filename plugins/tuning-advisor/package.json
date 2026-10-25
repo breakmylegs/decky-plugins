@@ -1,6 +1,6 @@
 {
   "name": "tuning-advisor",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Recommend per-game settings for your handheld and tuning tools. Read only",
   "type": "module",
   "private": true,
@@ -8,7 +8,7 @@
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "keywords": [
     "decky",

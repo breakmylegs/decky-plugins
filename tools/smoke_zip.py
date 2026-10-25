@@ -28,6 +28,7 @@ def fake_decky(home: str, plugin_dir: str, name: str, events: list) -> types.Mod
     mod = types.ModuleType("decky")
     mod.DECKY_USER_HOME = os.path.join(home, "user")
     mod.DECKY_HOME = os.path.join(home, "homebrew")
+    mod.DECKY_USER = "deck"
     mod.DECKY_PLUGIN_DIR = plugin_dir
     mod.DECKY_PLUGIN_SETTINGS_DIR = os.path.join(home, "homebrew", "settings", name)
     mod.DECKY_PLUGIN_RUNTIME_DIR = os.path.join(home, "homebrew", "data", name)
@@ -45,6 +46,13 @@ def fake_decky(home: str, plugin_dir: str, name: str, events: list) -> types.Mod
 
 async def exercise(plugin, events: list, mock_url: str | None, key: str, check=None) -> None:
     await plugin._main()
+    if hasattr(plugin, "get_view"):
+        # tuning-advisor: detection runs, and with no game the fallback shows.
+        view = await plugin.get_view()
+        assert view["recommendations"] and view["recommendations"][-1]["source"] == "fallback", view
+        assert view["devices"], "registry missing from the zip"
+        await plugin._unload()
+        return
     if not hasattr(plugin, "get_snapshot"):
         # A scaffold with no frontend API yet. Loading and unloading is the test.
         await plugin._unload()

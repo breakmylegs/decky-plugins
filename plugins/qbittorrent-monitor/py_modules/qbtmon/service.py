@@ -153,7 +153,8 @@ class QbtService(MonitorService):
                     report.failed(conntest.AUTH, err)
                     return report.to_dict()
                 report.warnings.append(
-                    "The server rejected the API key. Access works only through the IP whitelist."
+                    "The server rejected the API key. qBittorrent skips the IP whitelist when a key is sent, "
+                    "so polling will fail. Clear the API key or enter the correct one."
                 )
                 report.auth_path = "whitelist"
                 report.passed(conntest.AUTH, "Signed in through the IP whitelist")

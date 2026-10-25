@@ -49,7 +49,7 @@ To follow after on-device testing.
 
 | Component | Version |
 |---|---|
-| qBittorrent | 5.2 tested. 4.6 and later best effort |
+| qBittorrent | 5.2 and 5.3 (API key needs 5.2 or newer). 4.6 and later best effort |
 | Decky Loader | 3.0 and later. 3.3.0 tested |
 
 ## Data and privacy

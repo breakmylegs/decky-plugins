@@ -85,9 +85,13 @@ class QbtClient:
         if res.status == 403:
             # Too many failed logins. qBittorrent has banned this IP for a while.
             raise PluginError(FORBIDDEN, "login banned", 403)
-        if res.status != 200 or res.text().strip() != "Ok.":
-            raise PluginError(AUTH, "login rejected", res.status)
-        self._logged_in = True
+        # 5.2.0 and later: 204 with an empty body on success, 401 on bad credentials.
+        # Before 5.2.0: 200 with "Ok." or "Fails.".
+        body = res.text().strip()
+        if res.status == 204 or (res.status == 200 and body == "Ok."):
+            self._logged_in = True
+            return
+        raise PluginError(AUTH, "login rejected", res.status)
 
     def _call(self, method: str, path: str, **kwargs: Any) -> Response:
         with self._lock:

@@ -150,13 +150,24 @@ def test_api_key_auth(mock):
 def test_password_auth_relogin_on_403(mock):
     server = mock(password="pw")
     client = QbtClient(parse_base_url(server.url), Credentials(MODE_PASSWORD, username="admin", password="pw"))
-    assert client.app_version() == "v5.2.0"
+    assert client.app_version() == "v5.3.0"
     server.state.sessions.clear()
-    assert client.app_version() == "v5.2.0"
+    assert client.app_version() == "v5.3.0"
     logins = [c for c in server.state.calls if c[1] == "auth/login"]
     assert len(logins) == 2
     # Referer and the port-suffixed cookie both went through.
     assert any(name.startswith("QBT_SID_") for name in (c.name for c in client.http.cookies))
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_password_auth_both_login_styles(mock, legacy):
+    server = mock(password="pw", legacy_login=legacy, webapi="2.9.3" if legacy else "2.16.2")
+    good = QbtClient(parse_base_url(server.url), Credentials(MODE_PASSWORD, username="admin", password="pw"))
+    assert good.app_version()
+    bad = QbtClient(parse_base_url(server.url), Credentials(MODE_PASSWORD, username="admin", password="no"))
+    with pytest.raises(PluginError) as info:
+        bad.app_version()
+    assert info.value.kind == AUTH
 
 
 def test_password_auth_wrong_password(mock):
@@ -170,11 +181,12 @@ def test_password_auth_wrong_password(mock):
 def test_whitelist_no_credentials(mock):
     server = mock(whitelist=True)
     client = QbtClient(parse_base_url(server.url), Credentials(MODE_NONE))
-    assert client.app_version() == "v5.2.0"
+    assert client.app_version() == "v5.3.0"
 
 
 def test_204_means_no_change(mock):
-    server = mock(api_key=KEY)
+    # qBittorrent 5.3 never sends 204 for maindata. The client still copes if one arrives.
+    server = mock(api_key=KEY, support_204=True)
     client = QbtClient(parse_base_url(server.url), Credentials(MODE_API_KEY, api_key=KEY))
     rid = client.maindata(0)["rid"]
     assert client.maindata(rid) is None
@@ -258,7 +270,7 @@ def test_connection_test_paths(mock, tmp_path):
     service.save_settings({"base_url": server.url})
     service.set_secret("api_key", KEY)
     report = _run(service.test_connection())
-    assert report["ok"] and report["auth_path"] == "api_key" and report["server_version"] == "v5.2.0"
+    assert report["ok"] and report["auth_path"] == "api_key" and report["server_version"] == "v5.3.0"
 
     service.set_secret("api_key", "bad" * 10)
     report = _run(service.test_connection())

@@ -90,10 +90,14 @@ def test_mock_sabnzbd_keys_and_incremental_history():
         def call(**params):
             return client.get("api", params={"output": "json", **params}).json()
 
-        assert call(mode="version")["version"] == "5.0.1"
-        assert call(mode="queue")["error"] == "API Key Required"
-        assert call(mode="queue", apikey="x")["error"] == "API Key Incorrect"
-        assert call(mode="queue", apikey=nzb)["error"] == "API Key Incorrect"
+        def denied(**params):
+            res = client.get("api", params={"output": "json", **params})
+            return res.status, res.text()
+
+        assert call(mode="version")["version"] == "5.1.3"
+        assert denied(mode="queue") == (403, "API Key Required")
+        assert denied(mode="queue", apikey="x") == (403, "API Key Incorrect")
+        assert denied(mode="queue", apikey=nzb) == (403, "API Key Incorrect")
         queue = call(mode="queue", apikey=key, start=0, limit=8)["queue"]
         assert queue["noofslots_total"] == 2 and isinstance(queue["slots"][0]["percentage"], str)
         first = call(mode="history", apikey=key, limit=10)["history"]

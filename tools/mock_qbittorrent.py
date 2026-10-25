@@ -5,8 +5,11 @@ Use from tests: MockQbt(...).start() returns the base URL.
 
 Models the behaviour the plugin relies on:
 - API key (Bearer), cookie login with a port-suffixed cookie name, and an IP
-  whitelist that skips auth.
-- sync/maindata with rid, partial updates, torrents_removed and 204 on no change.
+  whitelist that skips auth only when no Bearer header is sent.
+- Login answers 204 or 401 as in 5.2.0 and later. legacy_login=True gives the
+  older 200 "Ok." or "Fails.".
+- sync/maindata with rid, partial updates and torrents_removed. Real 5.3 servers
+  always answer JSON. support_204=True simulates a 204 to test that path.
 - start/stop on WebAPI 2.11.0 and later, pause/resume before that.
 - 405 on the wrong method.
 """
@@ -41,7 +44,9 @@ def sample_torrents() -> dict[str, dict[str, Any]]:
 
 class MockState:
     def __init__(self, api_key: str = "", username: str = "admin", password: str = "", whitelist: bool = False,
-                 webapi: str = "2.12.0", version: str = "v5.2.0", support_204: bool = True):
+                 webapi: str = "2.16.2", version: str = "v5.3.0", support_204: bool = False,
+                 legacy_login: bool = False):
+        self.legacy_login = legacy_login
         self.api_key = api_key
         self.username = username
         self.password = password
@@ -156,13 +161,16 @@ def make_handler(state: MockState):
             if path in POST_ONLY and method != "POST":
                 return self._send(405, "Method Not Allowed")
             if path == "auth/login":
-                if self.headers.get("Authorization"):
+                if self.headers.get("Authorization", "").lower().startswith("bearer "):
                     return self._send(403, "Forbidden")
-                if form.get("username") == state.username and form.get("password") == state.password and state.password:
-                    sid = pysecrets.token_hex(8)
-                    state.sessions.add(sid)
-                    return self._send(200, "Ok.", headers={"Set-Cookie": f"{self._cookie_name()}={sid}; path=/; HttpOnly"})
-                return self._send(200, "Fails.")
+                ok = form.get("username") == state.username and form.get("password") == state.password and state.password
+                if not ok:
+                    # 5.2.0 and later answer 401. Older servers answer 200 "Fails.".
+                    return self._send(200, "Fails.") if state.legacy_login else self._send(401, "Unauthorized")
+                sid = pysecrets.token_hex(8)
+                state.sessions.add(sid)
+                cookie = {"Set-Cookie": f"{self._cookie_name()}={sid}; path=/; HttpOnly"}
+                return self._send(200, "Ok.", headers=cookie) if state.legacy_login else self._send(204, headers=cookie)
             if not self._authorised():
                 return self._send(403, "Forbidden")
             if path == "app/version":

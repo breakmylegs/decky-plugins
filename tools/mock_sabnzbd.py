@@ -7,7 +7,9 @@ Models what the plugin relies on:
 - GET /api?output=json&apikey=...&mode=...
 - mode=version needs no key. Everything else needs the full API key. The NZB
   key is refused for queue and history.
-- Error strings "API Key Required", "API Key Incorrect" and "Configuration locked".
+- A missing or wrong key gets HTTP 403 with a plain-text body, "API Key Required"
+  or "API Key Incorrect". The body is empty when api_warnings is off.
+  "Configuration locked" is a JSON error with HTTP 200.
 - Numbers as strings, as SABnzbd sends them.
 - history with last_history_update returns false when nothing changed.
 - nzo_id values are opaque. 5.0.1 and later use GUIDs.
@@ -33,7 +35,9 @@ def _slot(name: str, status: str, pct: int, priority: str = "Normal", cat: str =
 
 
 class MockState:
-    def __init__(self, api_key: str = "", nzb_key: str = "", version: str = "5.0.1", config_locked: bool = False):
+    def __init__(self, api_key: str = "", nzb_key: str = "", version: str = "5.1.3", config_locked: bool = False,
+                 api_warnings: bool = True):
+        self.api_warnings = api_warnings
         self.api_key = api_key
         self.nzb_key = nzb_key
         self.version = version
@@ -90,6 +94,14 @@ def make_handler(state: MockState):
         def _error(self, message: str):
             self._json({"status": False, "error": message})
 
+        def _forbidden(self, message: str):
+            body = (message if state.api_warnings else "").encode()
+            self.send_response(403)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
         def do_GET(self):
             parts = urllib.parse.urlsplit(self.path)
             if parts.path.rstrip("/") != "/api" and not parts.path.rstrip("/").endswith("/api"):
@@ -104,11 +116,11 @@ def make_handler(state: MockState):
                 return self._json({"version": state.version})
             key = q.get("apikey", "")
             if not key:
-                return self._error("API Key Required")
+                return self._forbidden("API Key Required")
             if key == state.nzb_key and state.nzb_key and mode not in NZB_KEY_MODES:
-                return self._error("API Key Incorrect")
+                return self._forbidden("API Key Incorrect")
             if key != state.api_key and key != state.nzb_key:
-                return self._error("API Key Incorrect")
+                return self._forbidden("API Key Incorrect")
             with state.lock:
                 return self._route(mode, q)
 

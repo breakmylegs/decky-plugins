@@ -150,6 +150,12 @@ def test_http_form_encoding(server):
     assert res.text() == "hashes=a%7Cb&deleteFiles=false"
 
 
+def test_http_json_body(server):
+    client = HttpClient(parse_base_url(server))
+    res = client.post("echo", json_body={"model": "m", "n": 1})
+    assert json.loads(res.text()) == {"model": "m", "n": 1}
+
+
 def test_http_cookie_jar_replays_any_cookie_name(server):
     client = HttpClient(parse_base_url(server), use_cookies=True)
     client.get("json")

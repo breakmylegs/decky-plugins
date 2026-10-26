@@ -44,6 +44,9 @@ def main() -> int:
     run("secret pattern check", [py, "tools/check_secrets.py"])
     run("fixture guard", [py, "tools/check_fixtures.py"])
     run("read-only guard (tuning-advisor)", [py, "tools/check_readonly.py", "plugins/tuning-advisor"])
+    # Vendor first. Plugin tests import the vendored copy, so a stale copy would
+    # test old shared code.
+    run("vendor shared code (all plugins)", [py, "tools/vendor_shared.py"])
     tests = ["shared/py/tests", "tools/tests"] + [f"plugins/{p}/tests" for p in PLUGINS]
     run("pytest", [py, "-m", "pytest", "-q", *tests])
 

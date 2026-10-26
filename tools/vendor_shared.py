@@ -24,6 +24,8 @@ PLUGINS = os.path.join(ROOT, "plugins")
 SHARED_PY = os.path.join(ROOT, "shared", "py", "plugin_core")
 SHARED_TS = os.path.join(ROOT, "shared", "ts")
 IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "tests", "*.test.ts")
+# Mock servers each plugin's tests use, so a mirror's tests run without the monorepo.
+MOCKS = {"qbittorrent-monitor": ["mock_qbittorrent.py"], "sabnzbd-monitor": ["mock_sabnzbd.py"]}
 
 
 def plugin_ids() -> list[str]:
@@ -49,6 +51,12 @@ def vendor(plugin_id: str, owner: str | None) -> None:
     folder = os.path.join(PLUGINS, plugin_id)
     copy_tree(SHARED_PY, os.path.join(folder, "py_modules", "plugin_core"))
     copy_tree(SHARED_TS, os.path.join(folder, "src", "shared"))
+    mocks = MOCKS.get(plugin_id, [])
+    if mocks:
+        target = os.path.join(folder, "tests", "mocks")
+        os.makedirs(target, exist_ok=True)
+        for name in mocks:
+            shutil.copy2(os.path.join(ROOT, "tools", name), os.path.join(target, name))
     with open(os.path.join(folder, "package.json"), encoding="utf-8") as handle:
         version = json.load(handle)["version"]
     info = {"plugin": plugin_id, "version": version, "repo": mirror_repo(plugin_id, owner), "asset": f"{plugin_id}.zip"}

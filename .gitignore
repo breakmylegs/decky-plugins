@@ -9,6 +9,7 @@ __pycache__/
 plugins/*/py_modules/plugin_core/
 plugins/*/src/shared/
 plugins/*/build_info.json
+plugins/*/tests/mocks/
 # Local import files and captures must never land here.
 decky-import/
 *.local.json

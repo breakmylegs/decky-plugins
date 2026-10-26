@@ -105,7 +105,9 @@ Validation runs on every recommendation, including the fallback. TDP is clamped 
 
 ## Release
 
-Nothing runs on GitHub. GitHub Actions is turned off for this repo, by the owner's decision, and there are no workflow files. Every check runs locally through `tools/gate.py`, and releases are made from the local machine with `gh`, which uses no Actions minutes. The mirror and release steps are still to be written as a local script.
+Nothing runs on GitHub. GitHub Actions is turned off for this repo, by the owner's decision, and there are no workflow files. Every check runs locally through `tools/gate.py`, and releases are made from the local machine with `gh`, which uses no Actions minutes.
+
+`tools/release.py <plugin-id>` releases one plugin. It reads the owner from the monorepo's origin remote, refuses a dirty tree, unpushed commits or an existing mirror release, runs the gate, vendors with the mirror owner so `build_info.json` names the mirror, rebuilds, packages with the owner as author and smoke tests the zip. It then builds the mirror tree in a temp folder: the plugin folder, its vendored shared code and mocks, `LICENSE` and `.gitattributes`. That tree must install, build, typecheck and pass its tests with nothing skipped before it is pushed. The mirror is created on first release, public with issues off. The script tags the mirror `v<version>`, creates the mirror release with the zip, and tags the monorepo `<plugin-id>-v<version>`.
 
 The zip root folder, the asset name and `plugin.json` name are all the plugin id. See `docs/VERIFICATION.md` item 4.
 

@@ -58,4 +58,14 @@ python tools/mock_sabnzbd.py --port 8091 --api-key test-key-for-local-use-only
 
 ## Release
 
-Releases are made locally with `gh` after the gate passes. A local mirror and release script is still to be written.
+Each plugin is released to its own public mirror repo, from this machine:
+
+```bash
+python tools/release.py qbittorrent-monitor --dry-run
+```
+
+```bash
+python tools/release.py qbittorrent-monitor
+```
+
+It refuses a dirty tree, unpushed commits or a version the mirror already has. It runs the gate, builds with the mirror named in `build_info.json`, checks the mirror tree builds and passes its tests on its own, pushes it, attaches the zip to a mirror release and tags the monorepo `<plugin-id>-v<version>`. Bump `version` in the plugin's `package.json` first. The install URL is `https://github.com/<owner>/<plugin-id>/releases/latest/download/<plugin-id>.zip`.

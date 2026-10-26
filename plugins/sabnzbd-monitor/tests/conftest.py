@@ -11,3 +11,6 @@ if not os.path.isdir(os.path.join(PLUGIN, "py_modules", "plugin_core")):
     sys.path.insert(1, os.path.join(ROOT, "shared", "py"))
 if os.path.isdir(os.path.join(ROOT, "tools")):
     sys.path.insert(1, os.path.join(ROOT, "tools"))
+# In a mirror, the mock servers are vendored into tests/mocks.
+elif os.path.isdir(os.path.join(HERE, "mocks")):
+    sys.path.insert(1, os.path.join(HERE, "mocks"))

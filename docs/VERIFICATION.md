@@ -333,6 +333,22 @@ Status: confirmed for all four. Only LeGoTDP has named presets.
 
 Sources: https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/src/utils/constants.tsx , https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/defaults/i18n/en.json , https://github.com/mengmeet/PowerControl/blob/main/src/i18n/english.json , https://github.com/mengmeet/PowerControl/blob/main/src/util/settings.ts , https://github.com/NGnius/PowerTools , https://git.ngni.us/api/v1/repos/NG-SD-Plugins/PowerTools/releases , https://github.com/Rayekkk/LeGoTDP/blob/main/README.md , https://github.com/Rayekkk/LeGoTDP/blob/main/main.py , https://github.com/Rayekkk/LeGoTDP/blob/main/src/index.tsx .
 
+### 23b. Settings file formats, for read-only current values
+
+**Status:** confirmed from each tool's source on its default branch. Checked 26 October 2026. tuning-advisor 0.5.0 reads these and never writes them. `<settings>` is `~/homebrew/settings/<plugin folder>`, Decky's `DECKY_PLUGIN_SETTINGS_DIR` for that plugin.
+
+| Tool | File | Per-game entry | Values |
+|---|---|---|---|
+| SimpleDeckyTDP (commit 2026-09-25) | `<settings>/settings.json` | `tdpProfiles.<appid>`, `default` otherwise. Used only when `enableTdpProfiles` is true | `tdp` in watts. App ID is `Router.MainRunningApp.appid` as text |
+| PowerControl (2026-10-23) | `<settings>/config.json`, key `PowerControl` | `perApp.<appid>`, `"0"` otherwise. Used only when `overwrite` is true | `defaultSettig.tdp` in watts with `tdpEnable`. `acStateOverwrite` adds `acStting` and `batSetting` |
+| LeGoTDP (2026-09-06) | `<settings>/settings.json` | `game_profiles.<appid>` | `spl`, `sppt`, `fppt` in milliwatts, `preset`, `ac_separate` and `ac_*`. Global values under `settings` |
+| Legion Go 2 Companion (2026-10-22) | `<settings>/tdp_settings.json` | `game_profiles.<appid>` | Same as LeGoTDP. Paused profiles under `inactive_game_profiles` |
+| Decky LSFG-VK (2026-09-17) | `~/.config/lsfg-vk/conf.toml`, `version = 2` | `[[profile]]` whose `active_in` lists the app ID | `multiplier`, `flow_scale`, `performance_mode`, `pacing_mode` |
+
+Not read, because the format is not stable or not plain: PowerTools (unmaintained), Handheld Daemon (YAML state behind a token), Fantastic (fan curves only), Steam's own TDP limit (no documented store).
+
+Source: https://github.com/aarron-lee/SimpleDeckyTDP/blob/main/py_modules/plugin_settings.py , https://github.com/mengmeet/PowerControl/blob/main/src/util/settings.ts , https://github.com/Rayekkk/LeGoTDP/blob/main/main.py , https://github.com/Rayekkk/LegionGo2Companion/blob/main/tdp_backend.py , https://github.com/xXJSONDeruloXx/decky-lsfg-vk/blob/main/py_modules/lsfg_vk/config_schema.py
+
 ## 24. AI provider APIs
 
 Status: confirmed for OpenAI. Corrected for Anthropic (new API version four days ago) and Gemini (`responseSchema` is deprecated).

@@ -109,6 +109,8 @@ The frontend tracks games with `SteamClient.GameSessions.RegisterForAppLifetimeN
 
 `advisor/pcgw.py` signs in with a bot password through the MediaWiki login flow, re-signs once if a query is refused, and runs two Cargo queries per game: `Game` joined to `Video` for upscalers, frame generation, HDR and ray tracing, and `Game` joined to `GameData` for config and save paths. Answers are cached for 7 days. A recommendation whose upscaler family the wiki does not list gets a flag.
 
+`advisor/current.py` reads the current per-game values of the selected power tool and of Decky LSFG-VK, from the formats in VERIFICATION.md item 23b. It opens files for reading only, ignores anything that does not parse or looks implausible, and converts LeGoTDP and Legion Go 2 Companion milliwatts to watts. Stack detection records each plugin's folder, which is also its settings folder. The panel shows the values under "Your current settings" and says whether they match.
+
 Validation runs on every recommendation, including the fallback. TDP is clamped to the device range, refresh rates above the panel are dropped, and frame caps outside the VRR range, or that do not divide the refresh rate without VRR, are flagged. FSR 4 is removed wherever it appears, including the in-game settings list.
 
 ## Release

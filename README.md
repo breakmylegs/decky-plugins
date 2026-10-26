@@ -48,6 +48,20 @@ python tools/mock_qbittorrent.py --port 8090 --api-key test-key-for-local-use-on
 python tools/mock_sabnzbd.py --port 8091 --api-key test-key-for-local-use-only
 ```
 
+## ProtonDB index
+
+Refresh the tuning-advisor's ProtonDB index after a new monthly dump appears at https://github.com/bdefore/protondb-data/tree/master/reports. Download the newest `reports_<mon><n>_<year>.tar.gz`, keep its name, then:
+
+```bash
+python -I tools/protondb_index.py build reports_nov1_2026.tar.gz
+```
+
+```bash
+python tools/protondb_index.py publish out/protondb-index.json.gz
+```
+
+The release `protondb-index` keeps one fixed file name, so installed plugins pick up the new index on their next monthly refresh.
+
 ## Docs
 
 - [Architecture](docs/ARCHITECTURE.md)

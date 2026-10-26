@@ -24,11 +24,13 @@ Talks only to the SABnzbd address you enter, with your API key. Same rules as ab
 
 ## tuning-advisor
 
-As of 0.3.0:
+As of 0.4.0:
 
 - Reads device facts from `/sys/class/dmi/id/`, `/proc/cpuinfo` and `/etc/os-release`. Serial numbers and UUIDs are never read.
 - Reads other Decky plugins' `plugin.json` files to detect your tuning tools. It never writes to them.
 - Sends the Steam app ID of the selected game to Deck Verified to fetch community reports. Responses are cached for 7 days.
+- ProtonDB, off by default. When on, downloads one index file (about 2 MB) from this project's GitHub release, then again after 31 days. Lookups happen on the device. Nothing about you or your game is sent.
+- PCGamingWiki, off by default. When on, signs in with your own bot password and sends the game's Steam app ID (or its name for non-Steam games) to pcgamingwiki.com. Answers are cached for 7 days. The bot password lives in `secrets.json` with the AI keys and never reaches the panel.
 - Your current launch options and compatibility tool are read from the Steam client to show and merge. They stay on the device.
 - AI recommendations are optional and off until you pick a provider and add your own API key. Nothing is sent until you press Generate AI recommendation.
 - Each request sends the game name, Steam app ID, the device profile (model, chip, screen, TDP range), your selected tools, and up to 6 short report excerpts. Home folder paths and links in report text are removed first. No host names, no other plugins' secrets, no user identifiers, no API keys of other providers.

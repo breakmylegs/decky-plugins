@@ -257,7 +257,7 @@ Sources: https://github.com/ShadowBlip/InputPlumber/tree/main/rootfs/usr/share/i
 
 ## 20. Device spec seed values
 
-Status: partly confirmed. Steam Deck and the first two Ally models are confirmed from the makers' pages. The rest are from secondary launch coverage, AMD's chip page, or reference knowledge, and are marked as such. Recheck the unconfirmed rows against Lenovo PSREF and MSI spec pages (both timed out or were not reached here).
+Status: partly confirmed. Steam Deck, the first two Ally models, Legion Go and Legion Go S are confirmed from the makers' pages. Lenovo PSREF sheets were read on 26 October 2026. The rest are from secondary launch coverage, AMD's chip page, or reference knowledge, and are marked as such. MSI's spec pages refuse automated requests (HTTP 403), so the Claw rows stay unconfirmed.
 
 Key: C = confirmed on the maker's page today. S = secondary coverage agrees. R = reference value, not rechecked today.
 
@@ -269,8 +269,8 @@ Key: C = confirmed on the maker's page today. S = secondary coverage agrees. R =
 | ROG Ally X (RC72LA) | 7 in, 1920x1080 | 120 Hz, FreeSync Premium | 80 Wh | Z1 Extreme, 12 RDNA 3 CU | 9 to 30 W | 24 GB LPDDR5 (12 GB x2) | C |
 | ROG Xbox Ally (RC73YA) | 7 in, 1920x1080 | 120 Hz, VRR R | 60 Wh | Ryzen Z2 A, Zen 2 4c/8t, 8 RDNA 2 CU R | 6 to 20 W R (Steam's own range is 4 to 20 W, item 22) | 16 GB LPDDR5-6400 | battery and RAM C (ASUS eShop), rest S or R |
 | ROG Xbox Ally X (RC73XA) | 7 in, 1920x1080 | 120 Hz, VRR R | 80 Wh | Ryzen AI Z2 Extreme, 16 RDNA 3.5 CU, up to 2.9 GHz | 15 to 35 W cTDP, 28 W default (AMD chip page) | 24 GB LPDDR5X-8000 | S, chip values C (amd.com) |
-| Legion Go (83E1) | 8.8 in, 2560x1600 | 144 Hz, no VRR R | 49.2 Wh | Z1 Extreme, 12 RDNA 3 CU | up to 30 W R | 16 GB LPDDR5X-7500 | R |
-| Legion Go S (83L3 Z2 Go, 83N6 Z1E) | 8 in, 1920x1200 | 120 Hz, VRR | 55.5 Wh | Z2 Go (Zen 3+ 4c/8t, 12 RDNA 2 CU) or Z1 Extreme | firmware ceiling SPL 40, SPPT 43, FPPT 53 W (LeGoTDP, read from firmware) | 16 or 32 GB LPDDR5X-6400 | R, TDP from source |
+| Legion Go (83E1) | 8.8 in, 2560x1600 IPS | 144 Hz, no VRR listed | 49.2 Wh | Z1 Extreme (8c/16t) or Z1 (6c/12t). CU counts from AMD, R | up to 30 W R | 16 GB LPDDR5X-7500 | C (PSREF, 22 January 2025 sheet). The Z1 version was missing from the registry and is added as `lenovo-legion-go-z1` |
+| Legion Go S (83L3 Z2 Go, 83N6 Z1E) | 8 in, 1920x1200 IPS | 48 to 120 Hz VRR | 55.5 Wh | Z2 Go (4c/8t, 8ARP1 sheet) or Z1 Extreme (8c/16t, 8APU1 sheet). CU counts from AMD, R | firmware ceiling SPL 40, SPPT 43, FPPT 53 W (LeGoTDP, read from firmware) | 16 or 32 GB. Z2 Go: LPDDR5 or LPDDR5X-6400. Z1 Extreme: LPDDR5X-7500 | C (PSREF, sheets of 25 May and 6 May 2026), TDP from source |
 | Legion Go 2 (83N0 Z2E, 83N1 Z2) | 8.8 in, 1920x1200 OLED, HDR TrueBlack 1000 | 144 Hz, VRR 30 to 144 Hz | 74 Wh | Z2 Extreme (16 RDNA 3.5 CU) or Z2 (Zen 4, 12 RDNA 3 CU) | firmware range 5 to 35 W (SimpleDeckyTDP comment), up to 50 W with ryzenadj (LeGoTDP) | up to 32 GB LPDDR5X-8000 | S, TDP from source |
 | MSI Claw A8 (MS-1T8K) | 8 in, 1920x1200 | 120 Hz, VRR | 80 Wh | Z2 Extreme, 16 RDNA 3.5 CU | 15 to 35 W (chip) | 24 GB LPDDR5X-8000 | R |
 | MSI Claw A1M (MS-1T41) | 7 in, 1920x1080 | 120 Hz, VRR | 53 Wh | Core Ultra 7 155H or 5 135H, Arc 8 Xe (7 Xe on 135H) | up to 35 to 40 W R | 16 GB LPDDR5-6400 | R |
@@ -279,7 +279,7 @@ Key: C = confirmed on the maker's page today. S = secondary coverage agrees. R =
 - CU counts are AMD compute units. Intel parts have Xe cores, so the advisor should not compare them with CU counts.
 - Sources disagree on the Legion Go 2 iGPU name (890M versus 780M). By chip, Z2 Extreme is RDNA 3.5 and Z2 is RDNA 3.
 
-Sources: https://www.steamdeck.com/en/tech/deck , https://www.steamdeck.com/en/tech , https://rog.asus.com/gaming-handhelds/rog-ally/rog-ally-2023/spec/ , https://rog.asus.com/gaming-handhelds/rog-ally/rog-ally-x-2024/spec/ , https://eshop.asus.com/ca-en/rog-xbox-ally-cnf.html , https://www.amd.com/en/products/processors/handhelds/ryzen-z-series/z2-series/z2-extreme.html , https://www.pcworld.com/article/2899101/lenovos-legion-go-2-adds-a-big-oled-screen-to-battle-the-steam-deck.html , https://insider-gaming.com/?p=144499 , https://liliputing.com/?p=175098 .
+Sources: https://www.steamdeck.com/en/tech/deck , https://www.steamdeck.com/en/tech , https://rog.asus.com/gaming-handhelds/rog-ally/rog-ally-2023/spec/ , https://rog.asus.com/gaming-handhelds/rog-ally/rog-ally-x-2024/spec/ , https://eshop.asus.com/ca-en/rog-xbox-ally-cnf.html , https://www.amd.com/en/products/processors/handhelds/ryzen-z-series/z2-series/z2-extreme.html , https://www.pcworld.com/article/2899101/lenovos-legion-go-2-adds-a-big-oled-screen-to-battle-the-steam-deck.html , https://insider-gaming.com/?p=144499 , https://liliputing.com/?p=175098 , https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Go_8APU1/Legion_Go_8APU1_Spec.pdf , https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Go_S_8APU1/Legion_Go_S_8APU1_Spec.PDF , https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Go_S_8ARP1/Legion_Go_S_8ARP1_Spec.PDF .
 
 ## 21. Stack detection identifiers
 
@@ -422,8 +422,7 @@ Status: partly confirmed.
 |---|---|
 | 13 | Capture fixtures from a live 5.3 server with `tools/capture_fixture.py` and test against them. Source review is done |
 | 15 | Capture fixtures from a live 5.1.3 server. Confirm `have_warnings` and `speedlimit` sit in the queue root |
-| 20 | Legion Go, Legion Go S and MSI Claw rows are reference values (marked R). Recheck against Lenovo and MSI spec pages from an unfiltered network |
+| 20 | MSI Claw rows are reference values (marked R). MSI's spec pages return HTTP 403 to automated requests. Check them in a browser |
 | 24 | Built in tuning-advisor 0.3.0 from these findings. Test replies are shaped from each provider's documented format, not recorded live. Capture one real reply per provider with a spending-limited key and add it as a fixture |
 | 25 | FSR 4.1 is official on Z2 chips under Windows only. Under Proton it stays unofficial, so FSR 4 is still never recommended |
 | 10 | No clipboard API. tuning-advisor 0.2.0 tries `navigator.clipboard`, then the `execCommand` fallback, and says when both fail. Confirm which works on a device |
-| Names | Recheck the live store JSON from an unfiltered network before submission |

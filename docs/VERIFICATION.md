@@ -15,6 +15,8 @@ Each **[VERIFY]** item from the build brief (CLAUDE.md section 12), with status,
 - Lenovo puts the machine type in `product_name` (for example `83N0`) and the model name in `product_version`. Confirmed.
 - Steam native TDP exists on every target device on current SteamOS, through steamos-manager. Not Steam Deck only.
 - LeGoTDP lives at Rayekkk/LeGoTDP, is archived and superseded by Legion Go 2 Companion. Its 5 s reapply is confirmed.
+- ProtonDB has no TDP or frame rate fields. It feeds compatibility and notes only.
+- PCGamingWiki Cargo needs a bot password since August 2026, and `Infobox_game` is now `Game`.
 - Deck Verified has no ROG Xbox Ally device label yet. Its data is GPL-3.0 and its API allows 120 requests per 2 minutes per IP.
 - Anthropic API version 2026-10-21 removes temperature, top_p and top_k. Gemini deprecates responseSchema. Recheck both at phase 2.
 - FSR 4.1 is official on Z2 chips under Windows only, not under Proton.
@@ -183,6 +185,34 @@ Status: confirmed, with shape below.
 - Licences: `DeckSettings/game-reports-steamos` (the report data, as GitHub issues) is **GPL-3.0**, `DeckSettings/deck-verified-site` (front and back end) is **GPL-3.0**, `DeckSettings/decky-game-settings` (their own Decky plugin) is BSD-3-Clause. No separate data licence or API terms were found in the README. Reports are user-written GitHub issues, so attribute and link each report (`html_url`) and do not bulk copy. Note the existing plugin "decky-game-settings" already browses this data.
 
 Sources: https://deckverified.games/deck-verified/api/v1/game_details?appid=1091500 , https://deckverified.games/deck-verified/api/v1/game_details?appid=620 , https://deckverified.games/deck-verified/api/v1/issue_labels , https://github.com/DeckSettings/deck-verified-site/blob/master/packages/backend/src/index.ts , https://github.com/DeckSettings/deck-verified-site/blob/master/packages/backend/src/rateLimiter.ts , https://github.com/DeckSettings/game-reports-steamos/blob/master/.github/ISSUE_TEMPLATE/GAME-REPORT.yml , https://github.com/orgs/DeckSettings/repositories .
+
+## 17. ProtonDB dump format and size
+
+**Status:** confirmed. Checked 26 October 2026 by downloading and streaming the latest dump.
+
+- Monthly dumps at https://github.com/bdefore/protondb-data, `reports/reports_<mon><n>_<year>.tar.gz`. Latest is `reports_oct1_2026.tar.gz`, 71.5 MB, pushed 1 October 2026.
+- One member, `reports_piiremoved.json`, about 530 MB: a single JSON array of 395,467 reports across 40,587 apps. It is too big to load in one go, so `tools/protondb_index.py` streams it.
+- Each report: `app.steam.appId`, `app.title`, `timestamp` (Unix seconds), `systemInfo` (`cpu`, `gpu`, `gpuDriver`, `kernel`, `os`, `ram`), and `responses`.
+- `responses` fields that matter: `verdict` (`yes` or `no`), `variant` (`official`, `ge`, `experimental`, `native`, `notListed`, `older`), `protonVersion` (official builds, for example `9.0-4`), `customProtonVersion` (for example `GE-Proton10-34`), `launchOptions` (for example `~/lsfg %command%`), `notes.verdict`, `concludingNotes`, `batteryPerformance`, `tinkerOverride`, `launcher`.
+- There is no TDP, frame rate or graphics preset field. ProtonDB feeds compatibility, launch options and notes, not power settings.
+- Handheld share since January 2025: 16,563 Steam Deck reports, 398 Ryzen Z1 Extreme, 41 Z2 Go, 33 Z2 Extreme, 10 Z1, 1 Z2. The Steam Deck LCD reports itself as `AMD Custom APU 0405`, the OLED as `AMD Custom APU 0932`.
+- Licence: ODbL 1.0 for the database and DbCL 1.0 for contents (repo README). The derived index is shared under the ODbL with attribution.
+- Index built from it: 16,299 apps with handheld reports, 1.6 MB gzipped.
+
+Source: https://github.com/bdefore/protondb-data , https://opendatacommons.org/licenses/odbl/
+
+## 18. PCGamingWiki auth flow and renamed Cargo tables
+
+**Status:** confirmed. Checked 26 October 2026 against the live API and the wiki's API page.
+
+- Anonymous `cargoquery` returns `permissiondenied`: "You don't have permission to run arbitrary Cargo queries." Since 23 August 2026 it needs a bot password made at Special:BotPasswords with the grant "Create, query and delete data through the Cargo extension", and the MediaWiki `action=login` flow: GET `action=query&meta=tokens&type=login`, then POST `action=login` with `lgname`, `lgpassword` and `lgtoken`, keeping the session cookie.
+- Renamed on 25 August 2026: `Infobox_game` is now `Game`, `Infobox_game_engine` is `GameEngine`, `VR_support` is `VR`, internal tables are `PCGW_<name>`. On 30 August the `Availability` columns were renamed (`Available_from` to `Present` and so on) and store keys moved to `StoreKeys`.
+- New on 22 August: `GameData` with `Type`, `Platform` and `Paths` for config and save file locations.
+- `Video` has `Upscaling` and `Frame_gen` (lists), `HDR`, `Ray_tracing`, `60_FPS`, `120_FPS`, `Ultrawidescreen` and more. `Game` has `Steam_AppID` (list), so filter with `Game.Steam_AppID HOLDS "<id>"`.
+- Rate limit 60 requests a minute. Going over returns HTTP 429 and blocks the IP for 60 seconds. A descriptive User-Agent with contact details is required, or requests may get 403.
+- Licence: CC BY-NC-SA. Show with attribution and a link. The plugin caches answers for 7 days.
+
+Source: https://www.pcgamingwiki.com/wiki/PCGamingWiki:API , https://www.pcgamingwiki.com/wiki/Special:CargoTables/Video , https://www.pcgamingwiki.com/wiki/Special:CargoTables/GameData , https://www.pcgamingwiki.com/w/api.php
 
 ## 19. DMI strings
 
@@ -364,8 +394,6 @@ Status: partly confirmed.
 | 5 | Store build from submodule root, review checklist, store policy on self update checks. Needed before phase 2 |
 | 13 | Capture fixtures from a live 5.3 server with `tools/capture_fixture.py` and test against them. Source review is done |
 | 15 | Capture fixtures from a live 5.1.3 server. Confirm `have_warnings` and `speedlimit` sit in the queue root |
-| 17 | ProtonDB dump format and size. Phase 2 |
-| 18 | PCGamingWiki auth flow and renamed Cargo tables. Phase 2 |
 | 20 | Legion Go, Legion Go S and MSI Claw rows are reference values (marked R). Recheck against Lenovo and MSI spec pages from an unfiltered network |
 | 24 | Built in tuning-advisor 0.3.0 from these findings. Test replies are shaped from each provider's documented format, not recorded live. Capture one real reply per provider with a spending-limited key and add it as a fixture |
 | 25 | FSR 4.1 is official on Z2 chips under Windows only. Under Proton it stays unofficial, so FSR 4 is still never recommended |

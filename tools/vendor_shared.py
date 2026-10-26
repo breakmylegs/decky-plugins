@@ -47,6 +47,20 @@ def mirror_repo(plugin_id: str, owner: str | None) -> str:
     return ""
 
 
+def monorepo() -> str:
+    """owner/name of this repo, from the origin remote. Empty when there is none."""
+    import re
+    import subprocess
+
+    try:
+        url = subprocess.run(["git", "remote", "get-url", "origin"], cwd=ROOT, capture_output=True, text=True,
+                             stdin=subprocess.DEVNULL, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return ""
+    match = re.search(r"github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$", url)
+    return f"{match.group(1)}/{match.group(2)}" if match else ""
+
+
 def vendor(plugin_id: str, owner: str | None) -> None:
     folder = os.path.join(PLUGINS, plugin_id)
     copy_tree(SHARED_PY, os.path.join(folder, "py_modules", "plugin_core"))
@@ -59,7 +73,8 @@ def vendor(plugin_id: str, owner: str | None) -> None:
             shutil.copy2(os.path.join(ROOT, "tools", name), os.path.join(target, name))
     with open(os.path.join(folder, "package.json"), encoding="utf-8") as handle:
         version = json.load(handle)["version"]
-    info = {"plugin": plugin_id, "version": version, "repo": mirror_repo(plugin_id, owner), "asset": f"{plugin_id}.zip"}
+    info = {"plugin": plugin_id, "version": version, "repo": mirror_repo(plugin_id, owner), "asset": f"{plugin_id}.zip",
+            "monorepo": monorepo()}
     with open(os.path.join(folder, "build_info.json"), "w", encoding="utf-8", newline="\n") as handle:
         json.dump(info, handle, indent=2)
         handle.write("\n")

@@ -11,6 +11,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import pytest
 
 from plugin_core import errors
+from plugin_core import http as core_http
 from plugin_core.conntest import Report, check_url
 from plugin_core.http import HttpClient, parse_base_url, port_warning
 from plugin_core.poller import (
@@ -340,3 +341,34 @@ def test_update_checker_survives_fetch_failure(tmp_path):
 def test_parse_version():
     assert parse_version("qbittorrent-monitor-v1.2.3") == (1, 2, 3)
     assert parse_version("nope") is None
+
+
+class _Paths:
+    def __init__(self, cafile, capath):
+        self.cafile = cafile
+        self.capath = capath
+
+
+def test_default_ca_file_keeps_working_defaults(monkeypatch, tmp_path):
+    good = tmp_path / "ca.pem"
+    good.write_text("x")
+    monkeypatch.setattr(core_http.ssl, "get_default_verify_paths", lambda: _Paths(str(good), None))
+    assert core_http.default_ca_file((str(good),)) is None
+
+
+def test_default_ca_file_finds_system_bundle_when_defaults_missing(monkeypatch, tmp_path):
+    # Decky's bundled Python on SteamOS: the default paths point at the build machine.
+    monkeypatch.setattr(core_http.ssl, "get_default_verify_paths",
+                        lambda: _Paths("/usr/lib/ssl/cert.pem", "/usr/lib/ssl/certs"))
+    bundle = tmp_path / "ca-certificates.crt"
+    bundle.write_text("x")
+    assert core_http.default_ca_file((str(tmp_path / "missing.pem"), str(bundle))) == str(bundle)
+
+
+def test_default_ca_file_falls_back_to_certifi(monkeypatch, tmp_path):
+    monkeypatch.setattr(core_http.ssl, "get_default_verify_paths", lambda: _Paths(None, None))
+    fake = type(sys)("certifi")
+    fake.where = lambda: "/bundle/certifi.pem"
+    monkeypatch.setitem(sys.modules, "certifi", fake)
+    assert core_http.default_ca_file((str(tmp_path / "missing.pem"),)) == "/bundle/certifi.pem"
+

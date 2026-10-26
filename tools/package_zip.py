@@ -5,9 +5,9 @@ Layout:
     <id>/dist/index.js, package.json, plugin.json, main.py, py_modules/,
     build_info.json, LICENSE, README.md
 
-The asset name, the zip root folder and plugin.json "name" are all the plugin
-id. Decky v3.0.4 and later read the name from plugin.json, older loaders take it
-from the URL, and a mismatch hangs the install on those older loaders.
+The asset name and the zip root folder are the plugin id. plugin.json "name" is
+the display name, which Decky shows in its plugin list. Install Plugin from URL
+reads it from plugin.json on Decky v3.0.4 and later, the minimum supported.
 
 Usage: python tools/package_zip.py <plugin-id> [--out out/] [--author NAME]
 Run tools/vendor_shared.py and the frontend build first.
@@ -66,8 +66,8 @@ def package(plugin_id: str, out_dir: str, author: str | None) -> str:
         raise SystemExit(f"{plugin_id}: py_modules/plugin_core missing. Run tools/vendor_shared.py.")
     with open(os.path.join(folder, "plugin.json"), encoding="utf-8") as handle:
         manifest = json.load(handle)
-    if manifest.get("name") != plugin_id:
-        raise SystemExit(f"{plugin_id}: plugin.json name must be {plugin_id!r}")
+    if not str(manifest.get("name") or "").strip():
+        raise SystemExit(f"{plugin_id}: plugin.json name is empty")
     if "_root" in manifest.get("flags", []) or "root" in manifest.get("flags", []):
         raise SystemExit(f"{plugin_id}: root flags are not allowed")
     if author:

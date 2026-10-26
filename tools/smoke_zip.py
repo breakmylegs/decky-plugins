@@ -90,7 +90,9 @@ def main() -> int:
         name = roots.pop()
         plugin_dir = os.path.join(tmp, "plugins", name)
         with open(os.path.join(plugin_dir, "plugin.json"), encoding="utf-8") as handle:
-            assert json.load(handle)["name"] == name, "plugin.json name must match the zip root"
+            # Decky names the plugin from plugin.json and the folder from the zip root.
+            display = json.load(handle)["name"]
+        assert display.strip() and display != name, "plugin.json name must be the display name"
         events: list = []
         sys.modules["decky"] = fake_decky(tmp, plugin_dir, name, events)
         sys.path.append(os.path.join(plugin_dir, "py_modules"))

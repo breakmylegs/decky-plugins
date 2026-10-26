@@ -56,7 +56,7 @@ Source: https://github.com/SteamDeckHomebrew/decky-loader/pull/992
 - Backend `_install` (`backend/decky_loader/browser.py`): when version is `dev`, it requires exactly one `*/plugin.json` at depth one, and replaces the name with `plugin.json` `name`. The zip root folder becomes the plugin folder.
 - Before v3.0.4 there was no `plugin.json` lookup, and a URL name that differed from `plugin.json` name hung the install. Fixed by PR #706 (commit 8d2b252, 13 October 2024), first released in v3.0.4.
 
-Decision: asset `<id>.zip`, root folder `<id>/` and `plugin.json` `name` are all the plugin id, so every loader version installs cleanly. The QAM title comes from `titleView`, so users still see "qBittorrent Monitor". `tools/package_zip.py` refuses to package when the names differ.
+Decision, revised 26 October 2026: asset `<id>.zip` and root folder `<id>/` are the plugin id, and `plugin.json` `name` is the display name, such as "qBittorrent Monitor". Decky's plugin list shows `plugin.json` `name`, so the id looked like a file name there. The minimum loader is v3.0.4. `find_plugin_folder` matches installed plugins by `plugin.json` `name`, so a copy installed under the old id name is not replaced in place. Uninstall it first. Settings survive, because `DECKY_PLUGIN_SETTINGS_DIR` is keyed by folder, and the folder is still the id (`sandboxed_plugin.py`, v3.3.0).
 
 Source: https://github.com/SteamDeckHomebrew/decky-loader/blob/main/backend/decky_loader/browser.py, https://github.com/SteamDeckHomebrew/decky-loader/pull/706
 

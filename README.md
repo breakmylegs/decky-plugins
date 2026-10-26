@@ -20,7 +20,7 @@ Nothing runs on GitHub. Run the full gate locally before every push:
 python tools/gate.py
 ```
 
-It needs gitleaks on PATH or in `.tools/`.
+Its secret check is `tools/check_secrets.py`, a plain pattern scan with no download.
 
 ```bash
 python tools/vendor_shared.py

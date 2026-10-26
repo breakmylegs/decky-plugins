@@ -121,7 +121,7 @@ All guards run in `tools/gate.py`, which stops at the first failure.
 
 | Guard | Fails when |
 |---|---|
-| gitleaks | Any secret pattern in history or the working tree. A missing gitleaks fails the gate unless `--skip-secrets` is given |
+| `tools/check_secrets.py` | A file git would commit holds a known key format (GitHub, AWS, Slack, Anthropic, OpenAI, Google, qBittorrent, private keys) or a secret-looking assignment with a long literal. Values of one repeated character are allowed as test placeholders. Refuses to pass when it finds no files |
 | `tools/check_fixtures.py` | A fixture holds an IPv4 address outside loopback and the RFC 5737 ranges, or a key-shaped string |
 | `tools/check_readonly.py` | tuning-advisor source calls a Steam setter, injects into a tab or runs a process. Refuses to pass on an empty tree |
 | `tools/package_zip.py` | `plugin.json` name differs from the id, a root flag is set, or `"type": "module"` is missing |

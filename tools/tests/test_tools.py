@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 import check_fixtures  # noqa: E402
 import check_readonly  # noqa: E402
+import check_secrets  # noqa: E402
 from sanitise_fixture import sanitise  # noqa: E402
 
 REAL_HASH = "8c212779b4abde7c6bc608063a0d008b7e40ce32"
@@ -106,3 +107,28 @@ def test_mock_sabnzbd_keys_and_incremental_history():
         assert call(mode="config", name="speedlimit", value="50", apikey=key)["error"] == "Configuration locked"
     finally:
         mock.stop()
+
+
+def test_secret_check_flags_each_format_and_allows_placeholders():
+    # Built from parts so this file holds no literal key.
+    planted = [
+        "-----BEGIN RSA " + "PRIVATE KEY-----",
+        "token = " + "ghp_" + "A1b2C3d4E5" * 4,
+        "AKIA" + "ABCDEFGH12345678",
+        "sk-ant-" + "api03-Zx9Yw8Vu7Ts6Rq5Po4Nm3",
+        "AIza" + "SyA1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q",
+        "qbt_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4",
+        'api_key = "' + "Zx9Yw8Vu7Ts6Rq5Po4" + '"',
+    ]
+    problems = check_secrets.scan_text("f.py", chr(10).join(planted))
+    assert {int(p.split(":")[1]) for p in problems} == set(range(1, len(planted) + 1))
+    safe = ["qbt_" + "k" * 28, 'api_key = "' + "f" * 32 + '"', 'password = "pw"', "sk-not-a-key"]
+    assert check_secrets.scan_text("f.py", chr(10).join(safe)) == []
+
+
+def test_secret_check_refuses_an_empty_repo(tmp_path, monkeypatch):
+    import subprocess as sp
+
+    sp.run(["git", "init", "-q", str(tmp_path)], check=True)
+    monkeypatch.setattr(sys, "argv", ["check_secrets.py", str(tmp_path)])
+    assert check_secrets.main() == 1

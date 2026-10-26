@@ -14,6 +14,7 @@ Build brief for three public Decky Loader plugins. Read this file in full before
 
 These replace parts of the brief below. They win wherever the brief disagrees.
 
+- **Never use gitleaks (26 October 2026).** Running it raised a security alert in the owner's organisation. The secret check is `tools/check_secrets.py`, a plain pattern scan in this repo. Wherever the brief says gitleaks, read that script. There is no `.gitleaks.toml`.
 - **No GitHub Actions (25 October 2026).** The owner has no licence or allowance for Actions. Actions is turned off for the repo, there are no workflow files, and no check runs on GitHub. Wherever the brief says CI, read `tools/gate.py` run locally. Mirroring and releases run from the local machine with `gh`.
 
 ## 1. Context

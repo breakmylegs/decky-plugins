@@ -14,5 +14,5 @@ plugins/*/tests/mocks/
 decky-import/
 *.local.json
 captures/
-# Local tools such as gitleaks for tools/gate.py.
+# Local tool downloads. Nothing should live here.
 .tools/

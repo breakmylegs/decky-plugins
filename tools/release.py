@@ -83,6 +83,8 @@ def ensure_mirror(mirror: str, plugin: str, dry_run: bool) -> None:
         return
     sh(["gh", "repo", "create", mirror, "--public", "--disable-issues", "--disable-wiki",
         "--description", DESCRIPTIONS.get(plugin, "Decky Loader plugin. Mirror for releases.")])
+    # No checks run on GitHub, by the owner's decision. New repos start with Actions on.
+    sh(["gh", "api", "-X", "PUT", f"repos/{mirror}/actions/permissions", "-F", "enabled=false"], capture=True)
 
 
 def push_mirror(plugin: str, version: str, mirror: str, monorepo_sha: str, dry_run: bool) -> None:

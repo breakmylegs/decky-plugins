@@ -101,6 +101,8 @@ Read only. It recommends and never applies. `tools/check_readonly.py` fails the 
 
 The frontend tracks games with `SteamClient.GameSessions.RegisterForAppLifetimeNotifications`, reads the name and build ID from `appStore` and `appDetailsStore`, and offers recent games from `collectionStore`. Non-Steam shortcuts are looked up by name and every result for them is low confidence.
 
+`advisor/compat.py` builds the compatibility section, recommend only. It splits launch options into environment variables, wrappers before `%command%`, and game arguments. It flags any wrapper that is not a known stack tool, shell operators, and strings without `%command%`, which Steam passes to the game as arguments. FSR 4 environment variables are removed. When you already have launch options it suggests a merge: recommended environment variables win, your wrappers stay, and each change is explained. Proton names from reports become the names Steam lists (Proton Experimental, Proton 9.0, GE-Proton10-20), with an install note for GE-Proton. The frontend reads `strLaunchOptions` (or `strShortcutLaunchOptions`) and `strCompatToolDisplayName` from `appDetailsStore` and sends them with the game. Nothing is written back.
+
 Validation runs on every recommendation, including the fallback. TDP is clamped to the device range, refresh rates above the panel are dropped, and frame caps outside the VRR range, or that do not divide the refresh rate without VRR, are flagged. FSR 4 is removed wherever it appears, including the in-game settings list.
 
 ## Release

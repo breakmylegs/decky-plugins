@@ -369,5 +369,5 @@ Status: partly confirmed.
 | 20 | Legion Go, Legion Go S and MSI Claw rows are reference values (marked R). Recheck against Lenovo and MSI spec pages from an unfiltered network |
 | 24 | Findings recorded. Recheck at phase 2 build time, because Anthropic and Gemini both changed in October 2026 |
 | 25 | FSR 4.1 is official on Z2 chips under Windows only. Under Proton it stays unofficial, so FSR 4 is still never recommended |
-| 10 | No clipboard API. Test `navigator.clipboard` and the `execCommand` fallback on a device |
+| 10 | No clipboard API. tuning-advisor 0.2.0 tries `navigator.clipboard`, then the `execCommand` fallback, and says when both fail. Confirm which works on a device |
 | Names | Recheck the live store JSON from an unfiltered network before submission |

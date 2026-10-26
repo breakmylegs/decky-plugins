@@ -14,7 +14,7 @@ Build brief for three public Decky Loader plugins. Read this file in full before
 
 These replace parts of the brief below. They win wherever the brief disagrees.
 
-- **No Decky store submission (26 October 2026).** The store rejects plugins built with LLM-written code, with no appeals (docs/VERIFICATION.md item 5). Phase 2 step 12 is not done. Distribution stays on the mirror releases. Changing this is the owner's call.
+- **No Decky store submission (26 October 2026).** The owner dropped it from the brief. The store rejects plugins built with LLM-written code, with no appeals (docs/VERIFICATION.md item 5). Distribution is the mirror releases and Install Plugin from URL only. Never prepare or open a store PR.
 - **Never use gitleaks (26 October 2026).** Running it raised a security alert in the owner's organisation. The secret check is `tools/check_secrets.py`, a plain pattern scan in this repo. Wherever the brief says gitleaks, read that script. There is no `.gitleaks.toml`.
 - **No GitHub Actions (25 October 2026).** The owner has no licence or allowance for Actions. Actions is turned off for the repo, there are no workflow files, and no check runs on GitHub. Wherever the brief says CI, read `tools/gate.py` run locally. Mirroring and releases run from the local machine with `gh`.
 
@@ -28,7 +28,7 @@ These replace parts of the brief below. They win wherever the brief disagrees.
 | `sabnzbd-monitor` | Monitor and control a SABnzbd instance from the QAM |
 | `tuning-advisor` | Detect the running game, device and installed tuning stack, then recommend settings. Never writes settings |
 
-- Confirm final names are free in the Decky store and on GitHub before first release. `decky-game-settings` is taken by DeckSettings and must not be used.
+- Confirm final names are free on GitHub before first release. `decky-game-settings` is taken by DeckSettings and must not be used.
 - Owner reference device is a Lenovo Legion Go 2, Ryzen Z2 Extreme, 32 GB, running SteamOS.
 - Owner's download clients run on a separate machine on a 192.168.x.x LAN, reached by local IP or FQDN over HTTP. Other users may run them on localhost.
 
@@ -36,10 +36,10 @@ These replace parts of the brief below. They win wherever the brief disagrees.
 
 | Area | Decision |
 |---|---|
-| Distribution | Public. Monorepo is the source of truth. CI mirrors each plugin to its own public repo, which hosts releases and later the store submodule |
+| Distribution | Public. Monorepo is the source of truth. `tools/release.py` pushes each plugin to its own public mirror repo, which hosts the releases. Users install with Install Plugin from URL |
 | Licence | GPL-3.0 for all three plugins |
 | Install path (phase 1) | Decky Developer Mode, Install Plugin from URL, pointing at the mirror's `releases/latest/download/<asset>.zip` |
-| Store | Submit to the Decky Plugin Store in phase 2 |
+| Store | Not submitted. Dropped by the owner, because the store rejects LLM-written plugins |
 | Devices | All Decky-capable handhelds. Device registry with community PRs and a generic fallback |
 | Connectivity | Localhost, LAN IP and FQDN, over HTTP or HTTPS. Warn on localhost port 8080 |
 | Remote access | Out of scope for now. No Tailscale or fallback URL features |
@@ -144,12 +144,10 @@ These replace parts of the brief below. They win wherever the brief disagrees.
 
 **Update notice**
 - Each plugin checks `GET https://api.github.com/repos/<owner>/<mirror>/releases/latest` at most once per day, compares with its own version, and shows an update badge with the install URL. User can disable it.
-- **[VERIFY]** loader PR #992 (new plugin update API in v3.3.0) and store policy on update checks before phase 2.
+- **[VERIFY]** loader PR #992 (new plugin update API in v3.3.0).
 
-**Store submission (phase 2)**
-- PR to `SteamDeckHomebrew/decky-plugin-database` adding each mirror as a git submodule, following the PR template checklist, including testing on SteamOS Stable and Beta.
-- **[VERIFY]** that the store builds from the submodule root and that the mirror layout satisfies it.
-- Submit plugins 1 and 2 first. Submit plugin 3 once phase 2 features are stable.
+**Installing**
+- Users install each plugin with Decky's Install Plugin from URL, pointing at the zip on its mirror's latest release. There is no store submission.
 
 ## 5. Shared core
 
@@ -573,7 +571,7 @@ All sources, fallback rules and AI output map into one schema, rendered by one U
 9. Plugin 3 AI providers.
 10. ProtonDB index and optional PCGamingWiki source.
 11. Read-only current values from stack tools where formats are known.
-12. Store submissions, plugins 1 and 2 first, then plugin 3.
+12. Dropped by the owner. No store submissions.
 
 ## 12. Verification register
 Track each item in `docs/VERIFICATION.md` with status, source URL and date.
@@ -582,7 +580,7 @@ Track each item in `docs/VERIFICATION.md` with status, source URL and date.
 2. `@decky/api` exports and signatures.
 3. Loader PR #992 plugin update API.
 4. Install from URL naming rule.
-5. Store build from submodule root, review checklist and update-check policy.
+5. Store build and policy. Closed, see docs/VERIFICATION.md item 5. The store is not used.
 6. Running game detection APIs.
 7. Game build ID access.
 8. Read access to current launch options and compatibility tool.

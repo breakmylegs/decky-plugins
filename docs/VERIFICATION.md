@@ -4,6 +4,7 @@ Each **[VERIFY]** item from the build brief (CLAUDE.md section 12), with status,
 
 ## Corrections that change the brief
 
+- The Decky store rejects plugins built with LLM-written code, with no appeals. These plugins cannot go on the store. They stay on the mirror releases (item 5).
 - qBittorrent 5.3.0 (20 October 2026) is the latest release, not 5.2.0. WebAPI 2.16.2.
 - qBittorrent 5.2.0 and later answer a successful `auth/login` with 204 and an empty body, and bad credentials with 401. The client handles both styles.
 - `sync/maindata` always returns JSON with a new `rid`. The 204 path never fires for it. The client still copes with a 204.
@@ -58,6 +59,18 @@ Source: https://github.com/SteamDeckHomebrew/decky-loader/pull/992
 Decision: asset `<id>.zip`, root folder `<id>/` and `plugin.json` `name` are all the plugin id, so every loader version installs cleanly. The QAM title comes from `titleView`, so users still see "qBittorrent Monitor". `tools/package_zip.py` refuses to package when the names differ.
 
 Source: https://github.com/SteamDeckHomebrew/decky-loader/blob/main/backend/decky_loader/browser.py, https://github.com/SteamDeckHomebrew/decky-loader/pull/706
+
+## 5. Store build, review checklist and policy
+
+**Status:** confirmed. Checked 26 October 2026. **The store does not accept these plugins.**
+
+- **Policy, decisive.** The wiki page "Submitting Plugins" says: "No. We do not accept any plugin that uses any LLM based code as these models do not comply with the GPL license ... Any LLM focused plugins will be rejected outright and there will be no appeals." All three plugins were written with an LLM, and tuning-advisor also has an optional AI feature. The plugin addition PR template asks the author to confirm "Generative AI was NOT used to write a majority of the code I am submitting", and warns that PRs not following it "may be denied for suspected AI usage". These plugins cannot honestly meet either, so no store submission was prepared. Distribution stays on the mirror releases and Install Plugin from URL. This conflicts with the brief's locked "Store: submit in phase 2" decision, which is the owner's to change.
+- **How submission works.** A PR to SteamDeckHomebrew/decky-plugin-database adds the plugin repo as a git submodule under `plugins/`, using the `plugin_addition.md` template: authorship and licence confirmations, the AI statement above, testing on SteamOS Stable or Beta for Python backends, and optionally testing two other plugins' PRs. Plugins must be public, include `LICENSE`, and have no unused `backend`, `assets` or `defaults` folders.
+- **How the store builds.** Its own GitHub Actions (in its repo, at its cost) build each submodule in `builder/Dockerfile`: `node:26-alpine` with `pnpm@12`, then `pnpm i --frozen-lockfile` and `pnpm run build` at the submodule root, then copy everything except `src/`, `node_modules` and `__pycache__`. Lockfiles must be `lockfileVersion: 9.0`. Ours are.
+- **What would fail today.** Tested with pnpm 12.15.0 on a mirror copy: the lockfile is accepted, but install exits 1 with `ERR_PNPM_IGNORED_BUILDS` for `esbuild` (pulled in by vitest), because pnpm 12 blocks dependency build scripts by default. pnpm 12 also no longer reads the `pnpm` field in `package.json`. A `pnpm-workspace.yaml` with `packages: ["."]`, `allowBuilds: { esbuild: false }` and the `peerDependencyRules` fixes it, and still works with pnpm 9 with the lockfile unchanged. Rollup's `@rollup/rollup-linux-x64-musl` for the Alpine image is already in the lockfiles. Mirrors also carry an empty `plugin.json` `author` and no `publish.image`. None of this is applied, because the policy above rules the store out.
+- **Update checks.** No store rule on self update checks was found in the database README, the PR templates or the two wiki pages.
+
+Source: https://github.com/SteamDeckHomebrew/wiki/blob/main/plugin-dev/submitting-plugins.md , https://github.com/SteamDeckHomebrew/wiki/blob/main/plugin-dev/review-and-testing.md , https://github.com/SteamDeckHomebrew/decky-plugin-database/blob/main/.github/PULL_REQUEST_TEMPLATE/plugin_addition.md , https://github.com/SteamDeckHomebrew/decky-plugin-database/blob/main/builder/Dockerfile , https://github.com/SteamDeckHomebrew/decky-plugin-database/blob/main/builder/entrypoint.sh (database commit 7d5cd9b, 23 October 2026)
 
 ## 6. Running game detection
 
@@ -407,7 +420,6 @@ Status: partly confirmed.
 
 | Item | What is left |
 |---|---|
-| 5 | Store build from submodule root, review checklist, store policy on self update checks. Needed before phase 2 |
 | 13 | Capture fixtures from a live 5.3 server with `tools/capture_fixture.py` and test against them. Source review is done |
 | 15 | Capture fixtures from a live 5.1.3 server. Confirm `have_warnings` and `speedlimit` sit in the queue root |
 | 20 | Legion Go, Legion Go S and MSI Claw rows are reference values (marked R). Recheck against Lenovo and MSI spec pages from an unfiltered network |

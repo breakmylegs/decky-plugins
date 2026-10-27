@@ -48,6 +48,10 @@ Source: https://github.com/SteamDeckHomebrew/loader-api/blob/main/src/index.ts
 
 Source: https://github.com/SteamDeckHomebrew/decky-loader/pull/992
 
+
+**Update now, 26 October 2026.** Decky only shows its own update button for store plugins: `checkForPluginUpdates` in `frontend/src/store.tsx` compares installed plugins with the store's version list by name. A custom store URL replaces the official store, so it is not used. Install Plugin from URL calls the backend route `utilities/install_plugin` (`backend/decky_loader/utilities.py`) with artifact, name, version, hash and install type. The route asks the frontend to show Decky's install prompt (`request_plugin_install` in `browser.py`), and on confirm `_install` downloads the zip, removes the copy whose `plugin.json` name matches, and installs the new one. The frontend connection is `window.DeckyBackend` (`frontend/src/index.ts`), and `InstallType.UPDATE` is 2 (`frontend/src/plugin.ts`). The plugins call that route from Update now. It is a loader internal, not the public API, so `shared/ts/selfUpdate.ts` checks for it and the badge falls back to the link with a Copy link button.
+
+Source: https://github.com/SteamDeckHomebrew/decky-loader/tree/v3.3.0 (files above, read 26 October 2026)
 ## 4. Install from URL naming rule
 
 **Status:** confirmed. Checked 25 October 2026 against decky-loader `main` at 00cd202 (20 October 2026).

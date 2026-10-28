@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import socket
+import ssl
 import stat
 import sys
 import threading
@@ -372,3 +373,24 @@ def test_default_ca_file_falls_back_to_certifi(monkeypatch, tmp_path):
     monkeypatch.setitem(sys.modules, "certifi", fake)
     assert core_http.default_ca_file((str(tmp_path / "missing.pem"),)) == "/bundle/certifi.pem"
 
+
+
+def test_tls_error_carries_openssl_reason_and_ca_source():
+    err = ssl.SSLCertVerificationError(1, "certificate verify failed")
+    err.reason = "CERTIFICATE_VERIFY_FAILED"
+    err.verify_message = "unable to get local issuer certificate"
+    classified = errors.classify(urllib.error.URLError(err))
+    assert classified.kind == errors.TLS
+    assert classified.to_dict()["detail"] == "CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate"
+    # Other kinds keep their dict shape.
+    assert "detail" not in errors.PluginError(errors.AUTH, "HTTP 401").to_dict()
+
+
+def test_certificate_load_failure_is_reported_on_request(tmp_path):
+    missing = str(tmp_path / "missing-ca.pem")
+    client = HttpClient(parse_base_url("https://example.invalid"), tls=core_http.TlsOptions(ca_file=missing))
+    with pytest.raises(errors.PluginError) as info:
+        client.get("/x")
+    assert info.value.kind == errors.TLS
+    detail = info.value.to_dict()["detail"]
+    assert "could not load certificates" in detail and f"CA file {missing}" in detail

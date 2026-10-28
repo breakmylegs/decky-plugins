@@ -107,7 +107,8 @@ class _Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.startswith("/json"):
-            body = json.dumps({"ok": True, "auth": self.headers.get("Authorization")}).encode()
+            body = json.dumps({"ok": True, "auth": self.headers.get("Authorization"),
+                               "ua": self.headers.get("User-Agent")}).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Set-Cookie", "QBT_SID_1=abc; path=/")
@@ -394,3 +395,15 @@ def test_certificate_load_failure_is_reported_on_request(tmp_path):
     assert info.value.kind == errors.TLS
     detail = info.value.to_dict()["detail"]
     assert "could not load certificates" in detail and f"CA file {missing}" in detail
+
+
+def test_requests_name_the_plugin_not_python(server, monkeypatch):
+    # Cloudflare in front of Deck Verified answers 403 to "Python-urllib/3.x".
+    monkeypatch.setattr(core_http, "USER_AGENT", core_http.USER_AGENT)
+    ua = core_http.set_user_agent({"plugin": "tuning-advisor", "monorepo": "example/decky-plugins"}, "0.7.2")
+    assert ua == "tuning-advisor/0.7.2 (+https://github.com/example/decky-plugins)"
+    got = HttpClient(parse_base_url(server)).get("json").json()["ua"]
+    assert got == ua and "urllib" not in got.lower()
+    # A caller's own header still wins.
+    own = HttpClient(parse_base_url(server), headers={"User-Agent": "own/1"}).get("json").json()["ua"]
+    assert own == "own/1"

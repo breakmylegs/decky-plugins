@@ -329,15 +329,36 @@ def test_update_checker_daily_and_compare(tmp_path):
 
 def test_update_checker_without_build_info_does_nothing(tmp_path):
     checker = UpdateChecker({}, "0.1.0", str(tmp_path / "u.json"), lambda url: 1 / 0)
-    assert checker.check() == {"current": "0.1.0", "latest": None, "available": False, "install_url": None}
+    assert checker.check() == {"current": "0.1.0", "latest": None, "available": False, "install_url": None,
+                               "checked_at": None, "check_failed": False}
 
 
 def test_update_checker_survives_fetch_failure(tmp_path):
     def fetch(url):
         raise errors.PluginError(errors.OFFLINE)
 
-    checker = UpdateChecker({"repo": "o/m", "asset": "a.zip"}, "0.1.0", str(tmp_path / "u.json"), fetch)
-    assert checker.check()["available"] is False
+    checker = UpdateChecker({"repo": "o/m", "asset": "a.zip"}, "0.1.0", str(tmp_path / "u.json"), fetch,
+                            now=lambda: 5000.0)
+    result = checker.check()
+    assert result["available"] is False
+    # The panel says the check failed, instead of "you have the latest".
+    assert result["check_failed"] is True and result["checked_at"] == 5000.0
+    assert result["install_url"] == "https://github.com/o/m/releases/latest/download/a.zip"
+
+
+def test_update_checker_known_needs_no_network(tmp_path):
+    def fetch(url):
+        return {"tag_name": "v0.3.0"}
+
+    path = str(tmp_path / "u.json")
+    UpdateChecker({"repo": "o/m", "asset": "a.zip"}, "0.1.0", path, fetch, now=lambda: 10.0).check()
+    offline = UpdateChecker({"repo": "o/m", "asset": "a.zip"}, "0.1.0", path, lambda url: 1 / 0)
+    known = offline.known()
+    assert known["latest"] == "0.3.0" and known["available"] and known["checked_at"] == 10.0
+    assert known["check_failed"] is False
+    # Never checked: still has the version and the install link.
+    fresh = UpdateChecker({"repo": "o/m", "asset": "a.zip"}, "0.1.0", str(tmp_path / "none.json"), lambda url: 1 / 0)
+    assert fresh.known()["install_url"] and fresh.known()["latest"] is None
 
 
 def test_parse_version():

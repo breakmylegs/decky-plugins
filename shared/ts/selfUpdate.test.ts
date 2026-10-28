@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { INSTALL_ROUTE, INSTALL_TYPE_UPDATE, loaderBackend, requestUpdate } from "./selfUpdate";
+import { INSTALL_ROUTE, INSTALL_TYPE_UPDATE, checkedLine, loaderBackend, requestUpdate, updateStatus } from "./selfUpdate";
 
 const URL = "https://github.com/example/plugin/releases/latest/download/plugin.zip";
 
@@ -57,5 +57,34 @@ describe("loaderBackend", () => {
     expect(loaderBackend()).toBeNull();
     (globalThis as { DeckyBackend?: unknown }).DeckyBackend = {};
     expect(loaderBackend()).toBeNull();
+  });
+});
+
+describe("updateStatus", () => {
+  const base = { current: "0.3.2", latest: "0.3.2", available: false, install_url: URL };
+
+  it("says what the last check found", () => {
+    expect(updateStatus({ ...base, latest: "0.4.0", available: true }, false)).toBe("Version 0.4.0 is available.");
+    expect(updateStatus(base, false)).toBe("You have the latest version.");
+    expect(updateStatus(base, true)).toBe("Checking GitHub for a new release.");
+  });
+
+  it("never claims the latest version when the check failed or never ran", () => {
+    expect(updateStatus({ ...base, latest: "0.3.2", check_failed: true }, false)).toBe(
+      "Could not reach GitHub. Try again later.",
+    );
+    expect(updateStatus({ ...base, latest: null }, false)).toBe("Not checked yet.");
+    expect(updateStatus(null, false)).toBe("Not checked yet.");
+  });
+});
+
+describe("checkedLine", () => {
+  it("gives a short age", () => {
+    const now = 1_000_000;
+    expect(checkedLine(null, now)).toBe("");
+    expect(checkedLine(now - 10, now)).toBe("Checked just now.");
+    expect(checkedLine(now - 600, now)).toBe("Checked 10 min ago.");
+    expect(checkedLine(now - 7200, now)).toBe("Checked 2 h ago.");
+    expect(checkedLine(now - 3 * 86400, now)).toBe("Checked 3 days ago.");
   });
 });

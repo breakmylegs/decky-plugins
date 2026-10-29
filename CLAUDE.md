@@ -15,6 +15,7 @@ Build brief for three public Decky Loader plugins. Read this file in full before
 These replace parts of the brief below. They win wherever the brief disagrees.
 
 - **No Decky store submission (26 October 2026).** The owner dropped it from the brief. The store rejects plugins built with LLM-written code, with no appeals (docs/VERIFICATION.md item 5). Distribution is the mirror releases and Install Plugin from URL only. Never prepare or open a store PR.
+- **AI replaces the cards, with a way back (28 October 2026).** Once AI is set up, Generate AI recommendation sits near the top of the panel, and the AI setup stays at the bottom. A generated reply replaces the recommendation and compatibility cards, labelled "AI generated, unverified". Back to source reports restores the source reports. This replaces section 8.11's "never in place of them". Validation, discarding and display-only output still apply.
 - **Never use gitleaks (26 October 2026).** Running it raised a security alert in the owner's organisation. The secret check is `tools/check_secrets.py`, a plain pattern scan in this repo. Wherever the brief says gitleaks, read that script. There is no `.gitleaks.toml`.
 - **No GitHub Actions (25 October 2026).** The owner has no licence or allowance for Actions. Actions is turned off for the repo, there are no workflow files, and no check runs on GitHub. Wherever the brief says CI, read `tools/gate.py` run locally. Mirroring and releases run from the local machine with `gh`.
 

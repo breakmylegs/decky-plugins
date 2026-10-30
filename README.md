@@ -4,9 +4,9 @@ Three Decky Loader plugins for handheld PCs. GPL-3.0.
 
 | Plugin | What it does | Status |
 |---|---|---|
-| [qbittorrent-monitor](plugins/qbittorrent-monitor) | Monitor and control qBittorrent from the Quick Access Menu | Phase 1 build, on-device testing next |
-| [sabnzbd-monitor](plugins/sabnzbd-monitor) | Monitor and control SABnzbd from the Quick Access Menu | Phase 1 build, on-device testing next |
-| [tuning-advisor](plugins/tuning-advisor) | Recommend game settings for your device and tuning tools. Never changes anything | Phase 1 MVP, on-device testing next |
+| [qbittorrent-monitor](plugins/qbittorrent-monitor) | Monitor and control qBittorrent from the Quick Access Menu | Released. On-device testing under way |
+| [sabnzbd-monitor](plugins/sabnzbd-monitor) | Monitor and control SABnzbd from the Quick Access Menu | Released. On-device testing under way |
+| [tuning-advisor](plugins/tuning-advisor) | Recommend game settings for your device and tuning tools. Never changes anything | Released with phase 2 features. On-device testing under way |
 
 This monorepo is the source of truth. Each plugin is mirrored to its own repo, which hosts releases. Report issues here.
 

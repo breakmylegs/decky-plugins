@@ -18,17 +18,22 @@ Once a day each plugin asks `api.github.com` for the latest release of its own m
 
 Talks only to the qBittorrent address you enter. It sends your API key or password to that server and nowhere else. It reads torrent names, sizes, states and speeds and shows them in the panel. Nothing is stored apart from settings and secrets.
 
+"Alternative speed while gaming" is off by default. When on, the plugin turns on alternative speed limits when a game starts and off when it ends. It notes that it did so in `game_mode.json` in its runtime folder, so it can undo only its own change, even after a restart.
+
 ## sabnzbd-monitor
 
 Talks only to the SABnzbd address you enter, with your API key. Same rules as above.
 
+"While gaming" is off by default. When set, the plugin pauses or slows downloads when a game starts and undoes it when the game ends, and keeps the same `game_mode.json` note.
+
 ## tuning-advisor
 
-As of 0.5.0:
+As of 0.10.0:
 
 - Reads device facts from `/sys/class/dmi/id/`, `/proc/cpuinfo` and `/etc/os-release`. Serial numbers and UUIDs are never read.
 - Reads other Decky plugins' `plugin.json` files to detect your tuning tools, and the settings files of SimpleDeckyTDP, PowerControl, LeGoTDP, Legion Go 2 Companion and Decky LSFG-VK to show your current values. It never writes to them, and nothing from them leaves the device.
 - Sends the Steam app ID of the selected game to Deck Verified to fetch community reports. Responses are cached for 7 days.
+- Anti-cheat status, on by default. Downloads the whole Are We Anti-Cheat Yet list (about 500 KB) from raw.githubusercontent.com at most once a week. Lookups happen on the device. No game name or app ID is sent.
 - ProtonDB, off by default. When on, downloads one index file (about 2 MB) from this project's GitHub release, then again after 31 days. Lookups happen on the device. Nothing about you or your game is sent.
 - PCGamingWiki, off by default. When on, signs in with your own bot password and sends the game's Steam app ID (or its name for non-Steam games) to pcgamingwiki.com. Answers are cached for 7 days. The bot password lives in `secrets.json` with the AI keys and never reaches the panel.
 - Your current launch options and compatibility tool are read from the Steam client to show and merge. They stay on the device.

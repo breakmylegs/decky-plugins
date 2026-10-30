@@ -11,6 +11,8 @@ A Decky Loader plugin. It detects your game, handheld and tuning tools, then rec
 - Checks every recommendation against your device: clamps TDP to its range, drops refresh rates the screen cannot show, and flags frame caps that will stutter.
 - Never recommends FSR 4, which is not officially available on handheld chips under Proton.
 - Falls back to general guidance for light, medium or heavy games when there is no report.
+- Shows the game's anti-cheat status from Are We Anti-Cheat Yet, and says plainly when anti-cheat blocks online play under Proton, so no setting will help.
+- Estimates battery life from the battery draw in each report and your device's battery size. Reports from another device are marked as a rough guide.
 - Shows the Proton version and launch options from each report, by the exact name Steam uses, and where to set them. Shows your current values next to them.
 - Keeps your own launch option wrappers, such as `~/lsfg %command%`, in a combined suggestion and explains each change.
 - Flags launch options that run a command before the game or use shell operators. Never runs or applies any of them.
@@ -84,11 +86,12 @@ Use a dedicated key with a spending limit. Set a daily request limit in settings
 - Tools are detected by reading other plugins' `plugin.json` files and checking whether some files exist. Their settings files are read to show your current values. Nothing is written to them.
 - AI requests, only when you press Generate, send the game name, app ID, device profile, your selected tools and short report excerpts to the provider you picked. No host names, user identifiers or other keys.
 - The game's Steam app ID is sent to deckverified.games. Non-Steam games are looked up by name. Replies are cached for 7 days and shown, marked as cached, when you are offline. Turn the source off in settings.
+- The anti-cheat list is downloaded whole from GitHub at most once a week and searched on the device, so no game name or app ID is sent. Turn it off in settings.
 - Once a day it checks GitHub for a newer release. Turn that off in settings.
 
 ## Sources
 
-Community reports from [Deck Verified](https://deckverified.games) by DeckSettings, GPL-3.0. Each recommendation links to its report. Contains information from [ProtonDB](https://www.protondb.com), made available under the [ODbL](https://opendatacommons.org/licenses/odbl/). Game details from [PCGamingWiki](https://www.pcgamingwiki.com), CC BY-NC-SA. Device match strings from [Handheld Daemon](https://github.com/hhd-dev/hhd), [InputPlumber](https://github.com/ShadowBlip/InputPlumber) and Valve's steamos-manager.
+Community reports from [Deck Verified](https://deckverified.games) by DeckSettings, GPL-3.0. Each recommendation links to its report. Contains information from [ProtonDB](https://www.protondb.com), made available under the [ODbL](https://opendatacommons.org/licenses/odbl/). Game details from [PCGamingWiki](https://www.pcgamingwiki.com), CC BY-NC-SA. Anti-cheat status from [Are We Anti-Cheat Yet](https://areweanticheatyet.com), MIT licence. Device match strings from [Handheld Daemon](https://github.com/hhd-dev/hhd), [InputPlumber](https://github.com/ShadowBlip/InputPlumber) and Valve's steamos-manager.
 
 ## Licence
 

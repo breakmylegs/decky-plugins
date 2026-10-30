@@ -420,10 +420,40 @@ Status: partly confirmed.
 - Decky Plugin Store: `https://plugins.deckbrew.xyz/plugins` is **blocked by the corporate web filter** here ("Elevated Exposure"), so the live store JSON could not be read. Fallback: the store's source database (SteamDeckHomebrew/decky-plugin-database, `plugins/`, 127 entries, last push 23 October 2026) has no entry matching qbit, torrent, sab, nzb, usenet, tuning or advis. GitHub repo search for "decky qbittorrent" and "decky sabnzbd" returns nothing. Recheck the live JSON from an unfiltered network before submission.
 - Suggestion: "tuning-advisor" is generic. Consider `handheld-tuning-advisor` or `decky-tuning-advisor` for search clarity.
 
+## 27. Feature round, 30 October 2026
+
+**Status:** confirmed from source and live replies. Checked 30 October 2026. Built in qbittorrent-monitor 0.5.0, sabnzbd-monitor 0.5.0 and tuning-advisor 0.10.0.
+
+qBittorrent, read at `v5_3_x`:
+- `transfercontroller.cpp`: `setDownloadLimit` and `setUploadLimit` read `limit` (`toLongLong`, 0 becomes -1, so 0 means no limit). `pauseSession` and `resumeSession` take no parameters.
+- `WebAPI_Changelog.md`: `transfer/pauseSession` and `server_state.session_state` arrived in WebAPI 2.16.2 (5.3.0, PR #24269). The plugin offers Pause all traffic only when `session_state` is present, and checks the WebAPI version before the call.
+- `torrentscontroller.cpp`: `setForceStart` reads `hashes` and `value` (`parseBool`). `topPrio`, `bottomPrio`, `increasePrio` and `decreasePrio` read `hashes` and answer 409 "Torrent queueing must be enabled". `reannounce` reads `hashes` and optional `urls`. `setCategory` reads `hashes` and `category` and answers 409 "Incorrect category name". Unknown hashes are skipped, with no error.
+- `serialize_torrent.h`: `priority` is the queue position, plus `amount_left`, `force_start`, `ratio` and `completion_on`. There is **no** tracker error flag such as `has_tracker_error`, so no tracker warning was built.
+- Not read from source: `Session::setDownloadSpeedLimit` sets the limit for whichever mode is active. The panel labels the sliders "(alternative)" while that mode is on. Confirm on a live server.
+
+SABnzbd, read at `master` and the 5.1 API page:
+- `nzbqueue.py` `switch`: `value2` may be a queue index, 0 for the top. Moving can give the job the priority of the job it passes.
+- `api.py`: `retry` (`value`), `retry_all`, history `name=delete` with ids or `failed`, `archive`, `del_files`, `change_cat` (`value`, `value2`, `*` for the default), `get_cats`, `warnings` `name=clear` and `server_stats` (bytes, totals and per server). History takes `failed_only=1`. Slots carry `stage_log` with `name` and `actions`. Some action lines contain HTML, which the plugin strips.
+- Queue root `diskspace1` and `diskspace2` are free GB as text, `have_quota` and `left_quota` give quota.
+- Release notes for 5.1.1, 5.1.2 and 5.1.3: GHSA-xrfq-jhgh-wqch, GHSA-rgqj-28c2-gxwp and GHSA-q326-jpxx-jmjc are authentication bypasses. The connection test warns for servers older than 5.1.3.
+
+Are We Anti-Cheat Yet:
+- Repo licence is MIT (LICENSE, copyright Starz0r and Curve). `games.json` is one JSON array of 1,167 games, 682 with a Steam ID in `storeIds.steam` (a string), about 470 KB. Fields: `name`, `status`, `anticheats`, `notes` (pairs of text and link), `updates`, `storeIds`, `slug`, `dateChanged`.
+- Statuses are Supported, Running, Planned, Broken and Denied. The panel uses the site's own wording from `components/Legend.tsx`. Game pages are `https://areweanticheatyet.com/game/<slug>` (checked live, 200 for a real slug, 404 otherwise).
+- Logos on the site come from SteamGridDB, so the plugin shows none.
+
+Deck Verified battery fields, from live replies for app IDs 1091500, 367520, 1145360 and 1245620:
+- `average_battery_power_draw` is text, a number of watts or "Unknown". `calculated_battery_life_minutes` is a number or null.
+- The minutes are the reporting device's battery Wh times 60, divided by the draw. Checked against five reports, for example ROG Ally X 80 Wh at 10 W gives 480.
+- No published model links an APU TDP limit to whole-device draw, so the plugin uses only the measured draw and never estimates from TDP.
+
+Sources: https://github.com/qbittorrent/qBittorrent/tree/v5_3_x/src/webui/api , https://raw.githubusercontent.com/qbittorrent/qBittorrent/v5_3_x/WebAPI_Changelog.md , https://sabnzbd.org/wiki/configuration/5.1/api , https://raw.githubusercontent.com/sabnzbd/sabnzbd/master/sabnzbd/api.py , https://raw.githubusercontent.com/sabnzbd/sabnzbd/master/sabnzbd/nzbqueue.py , https://github.com/sabnzbd/sabnzbd/releases/tag/5.1.3 , https://github.com/AreWeAntiCheatYet/AreWeAntiCheatYet , https://deckverified.games/deck-verified/api/v1/game_details?appid=1091500
+
 ## Still open
 
 | Item | What is left |
 |---|---|
+| 27 | On a device: the full-screen torrent list and SABnzbd history pages, the notched speed limit sliders, and each game-time change and its undo. On a live 5.3 server: Pause all traffic, and which mode the limit sliders change |
 | 13 | Capture fixtures from a live 5.3 server with `tools/capture_fixture.py` and test against them. Source review is done |
 | 15 | Capture fixtures from a live 5.1.3 server. Confirm `have_warnings` and `speedlimit` sit in the queue root |
 | 20 | MSI Claw rows are reference values (marked R). MSI's spec pages return HTTP 403 to automated requests. Check them in a browser |
